@@ -6,7 +6,7 @@
         当前地址：华龙网总部
       </view>
       <view class="right">
-        <nut-button size="small" plain type="primary">更换地址</nut-button>
+        <nut-button size="small" plain type="primary" @click="changeLocation">更换地址</nut-button>
       </view>
     </view>
   </view>
@@ -14,6 +14,14 @@
 <script>
 export default {
   name: "LocalInfo",
+  setup(_, { emit }) {
+    const changeLocation = () => {
+      emit('changeLocation')
+    }
+    return {
+      changeLocation
+    }
+  }
 };
 </script>
 <style lang="less">

@@ -12,7 +12,10 @@ const config = {
   },
   sourceRoot: "src",
   outputRoot: "dist",
-  plugins: ["@tarojs/plugin-html"],
+  plugins: ["@tarojs/plugin-html", ["@quarkcms/plugin-mock", {
+    host: "localhost",
+    port: 9999
+  }]],
   alias: {
     "@/components": path.resolve(__dirname, "..", "src/components"),
     "@/utils": path.resolve(__dirname, "..", "src/utils"),
