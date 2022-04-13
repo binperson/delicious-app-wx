@@ -8,7 +8,12 @@ import {
   TabbarItem,
   Address,
   Popup,
-  Elevator
+  Elevator,
+  CountDown,
+  Price,
+  Progress,
+  Tabs,
+  TabPane,
 } from "@nutui/nutui-taro";
 import "@nutui/nutui-taro/dist/styles/themes/default.scss";
 import "./assets/font/iconfont.css";
@@ -28,6 +33,11 @@ App.use(Button)
   .use(TabbarItem)
   .use(Address)
   .use(Elevator)
+  .use(CountDown)
+  .use(Price)
+  .use(Progress)
+  .use(Tabs)
+  .use(TabPane)
   .use(Popup);
 
 export default App;

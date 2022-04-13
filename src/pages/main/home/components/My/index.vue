@@ -151,7 +151,7 @@
             </view>
           </view>
           <view class="func-content">
-            <div class="func-item">
+            <div @click="goUrl('/pages/main/invite/index')" class="func-item">
               <nut-icon
                 size="40"
                 name="iconfont iconfont icon-yaoqingyouli"
@@ -170,6 +170,7 @@
 <script>
 import { ref } from "vue";
 import DeliView from "@/components/DeliView/index.vue";
+import { goUrl } from "@/utils/index";
 export default {
   name: "MY",
   components: {
@@ -186,6 +187,7 @@ export default {
     return {
       triggered,
       refresherrefresh,
+      goUrl
     };
   },
 };

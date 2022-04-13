@@ -31,6 +31,7 @@ import DeliView from "@/components/DeliView/index.vue";
 import DeliNavbar from "@/components/DeliNavbar/index.vue";
 import LocalInfo from "./components/LocalInfo.vue";
 import TribeInfo from "./components/TribeInfo.vue";
+import { back } from "@/utils/index";
 
 export default {
   name: "SelectTribe",
@@ -55,8 +56,7 @@ export default {
         { id: 9, name: "昌平区" },
         { id: 6, name: "石景山区" },
       ],
-      country: [
-      ],
+      country: [],
       town: [],
     });
     const changeLocation = () => {
@@ -73,6 +73,7 @@ export default {
       console.log(val);
     };
     return {
+      back,
       close,
       onChange,
       ...toRefs(address),
