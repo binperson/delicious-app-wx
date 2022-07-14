@@ -14,6 +14,16 @@ import {
   Progress,
   Tabs,
   TabPane,
+  Cell,
+  TimeSelect,
+  TimePannel,
+  TimeDetail,
+  Divider,
+  Row,
+  Col,
+  Empty,
+  Input,
+  Dialog
 } from "@nutui/nutui-taro";
 import "@nutui/nutui-taro/dist/styles/themes/default.scss";
 import "./assets/font/iconfont.css";
@@ -26,6 +36,9 @@ const App = createApp({
 });
 
 App.use(Button)
+  .use(TimeSelect)
+  .use(TimePannel)
+  .use(TimeDetail)
   .use(Toast)
   .use(Navbar)
   .use(Icon)
@@ -38,6 +51,13 @@ App.use(Button)
   .use(Progress)
   .use(Tabs)
   .use(TabPane)
-  .use(Popup);
+  .use(Cell)
+  .use(Divider)
+  .use(Popup)
+  .use(Col)
+  .use(Row)
+  .use(Empty)
+  .use(Input)
+  .use(Dialog);
 
 export default App;

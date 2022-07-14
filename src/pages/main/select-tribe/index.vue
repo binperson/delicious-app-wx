@@ -13,7 +13,7 @@
       <template v-slot:footer> </template>
     </DeliView>
   </view>
-  <nut-address
+  <!-- <nut-address
     v-model:visible="showPopup"
     :province="province"
     :city="city"
@@ -22,7 +22,7 @@
     @change="onChange"
     @close="close"
     custom-address-title="请选择所在地区"
-  ></nut-address>
+  ></nut-address> -->
 </template>
 
 <script>
@@ -60,7 +60,9 @@ export default {
       town: [],
     });
     const changeLocation = () => {
-      showPopup.value = true;
+      wx.navigateTo({
+        url: `plugin://citySelector/index?key=${key}&referer=${referer}&hotCitys=${hotCitys}`,
+      });
     };
     const onChange = (cal) => {
       const name = address[cal.next];

@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "459016",
+      "name": "shopping-cart",
+      "font_class": "shoppingcart-highlight",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
+      "icon_id": "30019663",
+      "name": "shopping-cart",
+      "font_class": "shoppingcart",
+      "unicode": "f41b",
+      "unicode_decimal": 62491
+    },
+    {
+      "icon_id": "11488225",
+      "name": "add-fill",
+      "font_class": "add",
+      "unicode": "e777",
+      "unicode_decimal": 59255
+    },
+    {
+      "icon_id": "29474010",
+      "name": "数量减少",
+      "font_class": "decrease",
+      "unicode": "f41a",
+      "unicode_decimal": 62490
+    },
+    {
       "icon_id": "77156",
       "name": "微信",
       "font_class": "weixin",

@@ -2117,19 +2117,6 @@
   dependencies:
     "@tarojs/shared" "3.3.18"
 
-"@tarojs/plugin-mock@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@tarojs/plugin-mock/-/plugin-mock-0.0.8.tgz#f3d1fe4a1cac2a5308cf306f39f074abcf0e4c19"
-  integrity sha512-zqI46YccI55YDFatkiePABi3xxS7R9ihLyNpeUYsfQebUJIPoipFHDR2FDWuHmQ/KX4HMY1M4sr31ZaqulraPg==
-  dependencies:
-    body-parser "^1.19.0"
-    cors "^2.8.5"
-    express "^4.17.1"
-    get-port "^5.1.1"
-    glob "^7.1.6"
-    http-proxy-middleware "^1.0.3"
-    path-to-regexp "^6.1.0"
-
 "@tarojs/plugin-platform-alipay@3.4.1":
   version "3.4.1"
   resolved "https://registry.npmmirror.com/@tarojs/plugin-platform-alipay/download/@tarojs/plugin-platform-alipay-3.4.1.tgz#b017c7205c443a5f6c01843fa9151c4cb987d38c"

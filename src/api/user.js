@@ -10,13 +10,6 @@ export function authLoginWechat (data) {
 
 export function getUserInfo () {
   return api.get({
-    url: `/portal/user/`
-  })
-}
-
-export function applyRole (data) {
-  return api.post({
-    url: `/portal/user`,
-    data
+    url: `/portal/user/info`
   })
 }

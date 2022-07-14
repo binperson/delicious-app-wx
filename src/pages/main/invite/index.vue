@@ -19,7 +19,7 @@
     >
       积分规则：
     </nut-popup>
-    <DeliView>
+    <DeliView :paddingBottom="false">
       <template v-slot:header>
         <DeliNavbar title="邀请有礼" :leftShow="true" :back="back" />
       </template>

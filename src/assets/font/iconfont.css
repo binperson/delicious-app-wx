@@ -2,9 +2,9 @@
   font-family: "iconfont"; /* Project id 2796847 */
   /* Color fonts */
   src: 
-       url('iconfont.woff2?t=1649591943759') format('woff2'),
-       url('iconfont.woff?t=1649591943759') format('woff'),
-       url('iconfont.ttf?t=1649591943759') format('truetype');
+       url('iconfont.woff2?t=1653580835708') format('woff2'),
+       url('iconfont.woff?t=1653580835708') format('woff'),
+       url('iconfont.ttf?t=1653580835708') format('truetype');
 }
 
 .iconfont {
@@ -13,6 +13,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-shoppingcart-highlight:before {
+  content: "\e632";
+}
+
+.icon-shoppingcart:before {
+  content: "\f41b";
+}
+
+.icon-add:before {
+  content: "\e777";
+}
+
+.icon-decrease:before {
+  content: "\f41a";
 }
 
 .icon-weixin:before {
