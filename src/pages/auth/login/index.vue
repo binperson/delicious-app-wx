@@ -64,7 +64,7 @@ export default {
                   title: "登录失败，请重新登录",
                   icon: "none",
                 });
-                return
+                return;
               }
               Taro.setStorageSync("userInfo", res.value);
               Taro.setStorageSync(DELI_TOKEN_NAME, res.value.sessionId);
@@ -105,6 +105,8 @@ export default {
 <style lang="less">
 @import "@/style/global.less";
 .t-login {
+  background-color: #fff;
+
   .main {
     height: 100%;
     width: 100%;
@@ -156,6 +158,10 @@ export default {
       color: @color-primary-1;
       display: inline;
     }
+  }
+
+  .t-deli-view .deli-view-content {
+    background-color: #fff;
   }
 }
 </style>

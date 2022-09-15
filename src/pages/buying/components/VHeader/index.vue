@@ -12,15 +12,15 @@
           <span class="name">{{ seller.name }}</span>
         </div>
         <div class="description">
-          {{ seller.description }}/{{ seller.deliveryTime }}分钟送达
+          拼成范围50~120单/已拼60单(已拼成)
         </div>
         <div v-if="seller.supports" class="support">
           <!-- <support-ico :size="1" :type="seller.supports[0].type"></support-ico> -->
-          <span class="text">{{ seller.supports[0].description }}</span>
+          <span class="text">送达时间：2022-08-24 22:17:17~2022-08-24 22:17:17</span>
         </div>
       </div>
       <div v-if="seller.supports" class="support-count">
-        <span class="count">{{ seller.supports.length }}个</span>
+        <span class="count">00:00:59后结束</span>
         <i class="icon-keyboard_arrow_right"></i>
       </div>
     </div>
@@ -42,7 +42,7 @@ export default {
   components: {},
   setup() {
     const seller = {
-      name: "粥品香坊（回龙观）",
+      name: "大竹林烤鱼干锅家常菜",
       description: "蜂鸟专送",
       deliveryTime: 38,
       score: 4.2,
@@ -54,7 +54,7 @@ export default {
       ratingCount: 24,
       sellCount: 90,
       bulletin:
-        "粥品香坊其烹饪粥料的秘方源于中国千年古法，在融和现代制作工艺，由世界烹饪大师屈浩先生领衔研发。坚守纯天然、0添加的良心品质深得消费者青睐，发展至今成为粥类的引领品牌。是2008年奥运会和2013年园博会指定餐饮服务商。",
+        "干锅、烤鱼秘方源于中国千年古法，在融和现代制作工艺，由世界烹饪大师屈浩先生领衔研发。坚守纯天然、0添加的良心品质深得消费者青睐。",
       supports: [
         { type: 0, description: "在线支付满28减5" },
         { type: 1, description: "VC无限橙果汁全场8折" },
@@ -90,12 +90,12 @@ export default {
   position: relative;
   overflow: hidden;
   color: #fff;
-  background: rgba(7, 17, 27, 0.5);
+  background: rgba(252, 114, 91, 0.5);
   .content-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    padding: 24px 12px 18px 24px;
+    padding: 10px 12px 32px 24px;
     .avatar {
       flex: 0 0 64px;
       width: 64px;

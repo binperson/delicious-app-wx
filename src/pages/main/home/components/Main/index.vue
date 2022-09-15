@@ -388,7 +388,6 @@ export default {
 
   .t-main-bg {
     position: absolute;
-    z-index: -1;
     top: 0;
     left: 0;
     right: 0;
@@ -397,6 +396,7 @@ export default {
   }
   .main-header {
     padding: 0 12px;
+    position: relative;
 
     .header-content {
       display: flex;

@@ -23,7 +23,8 @@ import {
   Col,
   Empty,
   Input,
-  Dialog
+  Dialog,
+  OverLay
 } from "@nutui/nutui-taro";
 import "@nutui/nutui-taro/dist/styles/themes/default.scss";
 import "./assets/font/iconfont.css";
@@ -58,6 +59,7 @@ App.use(Button)
   .use(Row)
   .use(Empty)
   .use(Input)
-  .use(Dialog);
+  .use(Dialog)
+  .use(OverLay);
 
 export default App;
