@@ -43,6 +43,7 @@ import Taro from "@tarojs/taro";
 import { goUrl } from "@/utils/index";
 import { authLoginWechat } from "@/api/user";
 import DeliView from "@/components/DeliView/index.vue";
+import jwt_decode from "jwt-decode";
 export default {
   name: "Login",
   components: {
@@ -54,30 +55,38 @@ export default {
       Taro.login({
         success: async (res) => {
           authLoginWechat({
-            code: res.code,
+            jsCode: res.code,
             encryptedData: e.detail.encryptedData,
             iv: e.detail.iv,
           }).then(
             (res) => {
-              if (res.code === 9 || res.code === 3) {
+              // if (res.code === 9 || res.code === 3) {
+              //   Taro.showToast({
+              //     title: "登录失败，请重新登录",
+              //     icon: "none",
+              //   });
+              //   return;
+              // }
+              if (res.code === 10000) {
+                console.log(jwt_decode(res.result))
+                Taro.setStorageSync("userInfo", res.value);
+                Taro.setStorageSync(DELI_TOKEN_NAME, res.value.sessionId);
+                if (instance.router.params.redirect) {
+                  let redirect = instance.router.params.redirect;
+                  let str = "";
+                  for (let i in instance.router.params) {
+                    str += `${i}=${instance.router.params[i]}&`;
+                  }
+                  str = str.substring(0, str.length - 1);
+                  Taro.reLaunch({ url: `${redirect}?${str}` });
+                } else {
+                  Taro.reLaunch({ url: "/pages/main/home/index" });
+                }
+              } else {
                 Taro.showToast({
-                  title: "登录失败，请重新登录",
+                  title: res.msg,
                   icon: "none",
                 });
-                return;
-              }
-              Taro.setStorageSync("userInfo", res.value);
-              Taro.setStorageSync(DELI_TOKEN_NAME, res.value.sessionId);
-              if (instance.router.params.redirect) {
-                let redirect = instance.router.params.redirect;
-                let str = "";
-                for (let i in instance.router.params) {
-                  str += `${i}=${instance.router.params[i]}&`;
-                }
-                str = str.substring(0, str.length - 1);
-                Taro.reLaunch({ url: `${redirect}?${str}` });
-              } else {
-                Taro.reLaunch({ url: "/pages/main/home/index" });
               }
             },
             () => {

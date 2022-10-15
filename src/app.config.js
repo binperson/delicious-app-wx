@@ -1,12 +1,12 @@
 export default {
   pages: [
+    "pages/auth/login/index",
     "pages/buying/index",
     "pages/pay/index",
     "pages/order/index",
     "pages/order-detail/index",
     "pages/main/invite/index",
     "pages/main/home/index",
-    "pages/auth/login/index",
     "pages/test/index",
     "pages/main/select-tribe/index",
     "pages/statement/policy/index",
