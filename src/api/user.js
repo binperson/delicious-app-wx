@@ -3,7 +3,7 @@ import api from '@/utils/request'
 // 微信登录
 export function authLoginWechat (data) {
   return api.post({
-    url: '/wxLogin',
+    url: '/app/login',
     data
   })
 }

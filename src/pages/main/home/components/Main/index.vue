@@ -14,7 +14,7 @@
         <view class="location" @click="getLocation">
           <nut-icon name="location2" color="#fff" size="15"></nut-icon>
           <view class="region-name">{{
-            region.regionName ? region.regionName : "获取定位"
+            location.name ? location.name : "获取定位"
           }}</view>
         </view>
       </view>
@@ -23,7 +23,7 @@
         class="switch-tribe"
       >
         <div class="title">
-          产业园一期十栋
+          {{ currentTribe.tribeName || '--' }}
         </div>
         <div class="switch">
           更换
@@ -338,44 +338,69 @@
 </template>
 <script>
 import Taro, { useDidShow } from "@tarojs/taro";
-import { reactive, toRefs } from "vue";
+import { reactive, toRefs, ref, watch } from "vue";
 import { goUrl } from "@/utils/index";
-const citySelector = requirePlugin("citySelector");
+import { tribeStore } from "@/store/modules/tribe.js";
+import { storeToRefs } from "pinia";
+const tribe = tribeStore();
+const chooseLocation = requirePlugin("chooseLocation");
+const key = "TX5BZ-5B53D-WYN4P-PJECA-5FV5S-OLB2N";
+const referer = "deli";
 export default {
   name: "Main",
   components: {},
   onUnload() {
-    console.log(1231);
-    // 页面卸载时清空插件数据，防止再次进入页面，getCity返回的是上次的结果
-    citySelector.clearCity();
+    // 页面卸载时设置插件选点数据为null，防止再次进入页面，geLocation返回的是上次选点结果
+    chooseLocation.setLocation(null);
   },
   setup() {
-    const key = "TX5BZ-5B53D-WYN4P-PJECA-5FV5S-OLB2N";
-    const referer = "deli";
-    const hotCitys = "重庆";
+    // const hotCitys = "重庆";
     const state = reactive({
       menuRect: Taro.getMenuButtonBoundingClientRect(),
       statusBarHeight: Taro.getSystemInfoSync().statusBarHeight,
     });
+    const location = ref({});
+    location.value = Taro.getStorageSync("location") || {};
 
     const getLocation = () => {
       wx.navigateTo({
-        url: `plugin://citySelector/index?key=${key}&referer=${referer}&hotCitys=${hotCitys}`,
+        url: `plugin://chooseLocation/index?key=${key}&referer=${referer}`,
       });
     };
 
     useDidShow(() => {
-      const selectedCity = citySelector.getCity();
-      console.log(123, selectedCity);
+      const getLocationInfo = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
+      if (getLocationInfo) {
+        location.value = getLocationInfo;
+      }
+      if (!location?.value?.name) {
+        getLocation();
+      } else {
+        tribe.getTribeList(location.value);
+        Taro.setStorageSync("location", location.value);
+      }
     });
+
+    watch(
+      location,
+      (newValue) => {
+        // 获取部落
+        tribe.getTribeList(newValue);
+      },
+      {
+        immutable: true,
+      }
+    );
+
+    const { currentTribe } = storeToRefs(tribe)
+    console.log(4321, currentTribe)
 
     return {
       ...toRefs(state),
-      region: {
-        regionName: "重庆市",
-      },
+      location,
       goUrl,
       getLocation,
+      currentTribe
     };
   },
 };

@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import { setupStore } from '@/store';
 import {
   Navbar,
   Button,
@@ -61,5 +62,8 @@ App.use(Button)
   .use(Input)
   .use(Dialog)
   .use(OverLay);
+
+
+setupStore(App);
 
 export default App;

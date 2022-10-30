@@ -5,9 +5,18 @@
         <DeliNavbar title="请选择部落" :leftShow="true" :back="back" />
       </template>
       <template v-slot:content>
-        <LocalInfo @changeLocation="changeLocation" />
+        <LocalInfo
+          :location="location"
+          :tribeLength="tribe.tribeListLast.length"
+          @changeLocation="changeLocation"
+        />
         <scroll-view class="tribe-list-content" :scroll-y="true">
-          <TribeInfo :item="item" v-for="item in tribeList" />
+          <TribeInfo
+            :location="location"
+            :tribe="item"
+            v-for="item in tribe.tribeListLast"
+            @selectTribe="selectTribe"
+          />
         </scroll-view>
       </template>
       <template v-slot:footer> </template>
@@ -26,13 +35,18 @@
 </template>
 
 <script>
-import { ref, reactive, toRefs } from "vue";
+import { ref, reactive, toRefs, watch } from "vue";
+import Taro, { useDidShow } from "@tarojs/taro";
 import DeliView from "@/components/DeliView/index.vue";
 import DeliNavbar from "@/components/DeliNavbar/index.vue";
 import LocalInfo from "./components/LocalInfo.vue";
 import TribeInfo from "./components/TribeInfo.vue";
 import { back } from "@/utils/index";
-
+import { tribeStore } from "@/store/modules/tribe.js";
+const tribe = tribeStore();
+const chooseLocation = requirePlugin("chooseLocation");
+const key = "TX5BZ-5B53D-WYN4P-PJECA-5FV5S-OLB2N";
+const referer = "deli";
 export default {
   name: "SelectTribe",
   components: {
@@ -41,8 +55,53 @@ export default {
     LocalInfo,
     TribeInfo,
   },
+  onUnload() {
+    // 页面卸载时设置插件选点数据为null，防止再次进入页面，geLocation返回的是上次选点结果
+    chooseLocation.setLocation(null);
+  },
   setup() {
     const showPopup = ref(false);
+    const location = ref({});
+    location.value = Taro.getStorageSync("location") || {};
+
+    const getLocation = () => {
+      wx.navigateTo({
+        url: `plugin://chooseLocation/index?key=${key}&referer=${referer}`,
+      });
+    };
+
+    useDidShow(() => {
+      const getLocationInfo = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
+      if (getLocationInfo) {
+        location.value = getLocationInfo;
+      }
+      if (!location?.value?.name) {
+        getLocation();
+      } else {
+        tribe.getTribeList(location.value);
+        Taro.setStorageSync("location", location.value);
+      }
+    });
+
+    watch(
+      location,
+      (newValue) => {
+        // 获取部落
+        tribe.getTribeList(newValue);
+      },
+      {
+        immutable: true,
+      }
+    );
+
+    const selectTribe = (val) => {
+      Taro.setStorageSync("currentTribe", val);
+      tribe.currentTribe = val;
+      Taro.navigateBack({
+        delta: 1,
+      });
+    };
+
     const address = reactive({
       province: [
         { id: 1, name: "北京" },
@@ -60,9 +119,7 @@ export default {
       town: [],
     });
     const changeLocation = () => {
-      wx.navigateTo({
-        url: `plugin://citySelector/index?key=${key}&referer=${referer}&hotCitys=${hotCitys}`,
-      });
+      getLocation();
     };
     const onChange = (cal) => {
       const name = address[cal.next];
@@ -74,6 +131,7 @@ export default {
     const close = (val) => {
       console.log(val);
     };
+    console.log(2323, tribe);
     return {
       back,
       close,
@@ -81,25 +139,9 @@ export default {
       ...toRefs(address),
       showPopup,
       changeLocation,
-      tribeList: [
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
+      tribe,
+      location,
+      selectTribe,
     };
   },
 };

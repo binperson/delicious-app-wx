@@ -21,6 +21,10 @@ export default {
     disableScroll: true,
   },
   plugins: {
+    chooseLocation: {
+      version: "1.0.9",
+      provider: "wx76a9a06e5b4e693e",
+    },
     citySelector: {
       version: "1.0.1",
       provider: "wx63ffb7b7894e99ae",

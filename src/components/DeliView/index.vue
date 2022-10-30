@@ -32,10 +32,10 @@ export default {
   height: 100%;
   width: 100%;
 
-  &.padding-bottom {
-    padding-bottom: constant(safe-area-inset-bottom);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  // &.padding-bottom {
+  //   padding-bottom: constant(safe-area-inset-bottom);
+  //   padding-bottom: env(safe-area-inset-bottom);
+  // }
 
   .deli-view-content {
     display: flex;
