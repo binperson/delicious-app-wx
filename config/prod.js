@@ -3,7 +3,8 @@ module.exports = {
     NODE_ENV: '"production"'
   },
   defineConstants: {
-    DELI_BASE_URL: '"https://test.pinleo.com.cn"',
+    DELI_BASE_URL: '"https://delicious.lxlit.cn"',
+    DELI_BASE_URL_FILE: '"https://admin.delicious.lxlit.cn/"',
     DELI_TOKEN_NAME: '"token"'
   },
   mini: {},

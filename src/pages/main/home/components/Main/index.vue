@@ -23,7 +23,7 @@
         class="switch-tribe"
       >
         <div class="title">
-          {{ currentTribe.tribeName || '--' }}
+          {{ currentTribe.tribeName || "--" }}
         </div>
         <div class="switch">
           更换
@@ -32,20 +32,18 @@
     </view>
     <scroll-view class="content" :scroll-y="true">
       <div class="group-list">
-        <div class="group-item">
+        <div @click="updateCurrentGroupPurchase(item)" v-for="item in groupPurchaseList" class="group-item">
           <div class="top">
             <div class="title">
               <div class="shop-name">
-                大竹林烤鱼
+                {{ item.name }}
               </div>
               <div class="tip">
                 优选食物团购中
               </div>
             </div>
             <div class="countdown-wrap">
-              <nut-countdown
-                :end-time="Date.now() + 500 * 1000"
-              ></nut-countdown>
+              <nut-countdown :end-time="item.endTime"></nut-countdown>
               后结束
             </div>
           </div>
@@ -53,15 +51,15 @@
             <div class="food-wrap">
               <scroll-view>
                 <div class="food-list">
-                  <div class="food-item">
-                    <div class="food-img"></div>
+                  <div v-for="item in shuffle(allFoodList)" class="food-item">
+                    <div class="food-img" :style="`background: url('${item.avatar}');background-size: cover;`"></div>
                     <div class="food-title">
-                      谷物红壳鲜
+                      {{ item.name }}
                     </div>
                     <div class="price-wrap">
                       <div class="price">
                         <nut-price
-                          :price="10.01"
+                          :price="item.price"
                           size="normal"
                           :need-symbol="true"
                           :thousands="true"
@@ -69,31 +67,7 @@
                       </div>
                       <div class="old-price">
                         <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="food-item">
-                    <div class="food-img"></div>
-                    <div class="food-title">
-                      谷物红壳鲜
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="10.01"
+                          :price="item.originPrice"
                           size="normal"
                           :need-symbol="true"
                           :thousands="true"
@@ -105,6 +79,32 @@
               </scroll-view>
             </div>
             <div class="info">
+              <div class="left">
+                <!-- <div class="progress">
+                    <nut-progress
+                      percentage="60"
+                      :text-inside="true"
+                      size="small"
+                    />
+                  </div> -->
+                <div class="success">
+                  拼单成功，加入即配送
+                </div>
+              </div>
+              <div class="right">
+                <nut-button @click="goUrl('/pages/buying/index')" size="mini" type="warning">
+                  <view class="join">
+                    <view class="text">去加入</view>
+                    <nut-icon
+                      name="iconfont iconfont icon-invite-right"
+                      color="#fff"
+                      size="12"
+                    ></nut-icon>
+                  </view>
+                </nut-button>
+              </div>
+            </div>
+            <!-- <div class="info">
               <div class="left">
                 <div class="progress">
                   <nut-progress
@@ -129,207 +129,7 @@
                   </view>
                 </nut-button>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="group-item">
-          <div class="top">
-            <div class="title">
-              <div class="shop-name">
-                大竹林烤鱼
-              </div>
-              <div class="tip">
-                优选食物团购中
-              </div>
-            </div>
-            <div class="countdown-wrap">
-              <nut-countdown
-                :end-time="Date.now() + 500 * 1000"
-              ></nut-countdown>
-              后结束
-            </div>
-          </div>
-          <div class="info-wrap">
-            <div class="food-wrap">
-              <scroll-view>
-                <div class="food-list">
-                  <div class="food-item">
-                    <div class="food-img"></div>
-                    <div class="food-title">
-                      谷物红壳鲜
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="food-item">
-                    <div class="food-img"></div>
-                    <div class="food-title">
-                      谷物红壳鲜
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </scroll-view>
-            </div>
-            <div class="info">
-              <div class="left">
-                <!-- <div class="progress">
-                    <nut-progress
-                      percentage="60"
-                      :text-inside="true"
-                      size="small"
-                    />
-                  </div> -->
-                <div class="success">
-                  拼单成功，加入即配送
-                </div>
-              </div>
-              <div class="right">
-                <nut-button size="mini" type="warning">
-                  <view class="join">
-                    <view class="text">去加入</view>
-                    <nut-icon
-                      name="iconfont iconfont icon-invite-right"
-                      color="#fff"
-                      size="12"
-                    ></nut-icon>
-                  </view>
-                </nut-button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="group-item">
-          <div class="top">
-            <div class="title">
-              <div class="shop-name">
-                大竹林烤鱼
-              </div>
-              <div class="tip">
-                优选食物团购中
-              </div>
-            </div>
-            <div class="countdown-wrap">
-              <nut-countdown
-                :end-time="Date.now() + 500 * 1000"
-              ></nut-countdown>
-              后结束
-            </div>
-          </div>
-          <div class="info-wrap">
-            <div class="food-wrap">
-              <scroll-view>
-                <div class="food-list">
-                  <div class="food-item">
-                    <div class="food-img"></div>
-                    <div class="food-title">
-                      谷物红壳鲜
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="food-item">
-                    <div class="food-img"></div>
-                    <div class="food-title">
-                      谷物红壳鲜
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="10.01"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </scroll-view>
-            </div>
-            <div class="info">
-              <div class="left">
-                <!-- <div class="progress">
-                    <nut-progress
-                      percentage="60"
-                      :text-inside="true"
-                      size="small"
-                    />
-                  </div> -->
-                <div class="success">
-                  拼单成功，加入即配送
-                </div>
-              </div>
-              <div class="right">
-                <nut-button size="mini" type="warning">
-                  <view class="join">
-                    <view class="text">去加入</view>
-                    <nut-icon
-                      name="iconfont iconfont icon-invite-right"
-                      color="#fff"
-                      size="12"
-                    ></nut-icon>
-                  </view>
-                </nut-button>
-              </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -341,8 +141,13 @@ import Taro, { useDidShow } from "@tarojs/taro";
 import { reactive, toRefs, ref, watch } from "vue";
 import { goUrl } from "@/utils/index";
 import { tribeStore } from "@/store/modules/tribe.js";
+import { foodStore } from "@/store/modules/food.js";
+import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
 import { storeToRefs } from "pinia";
+import { getPmsGroupPurchaseList } from "@/api/groupPurchase";
 const tribe = tribeStore();
+const food = foodStore();
+const groupPurchase = groupPurchaseStore()
 const chooseLocation = requirePlugin("chooseLocation");
 const key = "TX5BZ-5B53D-WYN4P-PJECA-5FV5S-OLB2N";
 const referer = "deli";
@@ -360,13 +165,33 @@ export default {
       statusBarHeight: Taro.getSystemInfoSync().statusBarHeight,
     });
     const location = ref({});
+    const groupPurchaseList = ref([]);
     location.value = Taro.getStorageSync("location") || {};
+    food.getAllFoodList();
 
     const getLocation = () => {
       wx.navigateTo({
         url: `plugin://chooseLocation/index?key=${key}&referer=${referer}`,
       });
     };
+
+    const shuffle = (arr) => {
+      var l = arr.length;
+      var index, temp;
+      while (l > 0) {
+        index = Math.floor(Math.random() * l);
+        temp = arr[l - 1];
+        arr[l - 1] = arr[index];
+        arr[index] = temp;
+        l--;
+      }
+      return arr;
+    };
+
+    // 更新当前团购
+    const updateCurrentGroupPurchase = (val) => {
+      groupPurchase.updateCurrentGroupPurchase(val)
+    }
 
     useDidShow(() => {
       const getLocationInfo = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
@@ -386,21 +211,46 @@ export default {
       (newValue) => {
         // 获取部落
         tribe.getTribeList(newValue);
+      }
+      // {
+      //   immediate: true,
+      // }
+    );
+    const { currentTribe } = storeToRefs(tribe);
+    const { allFoodList } = storeToRefs(food);
+
+    watch(
+      currentTribe,
+      (newValue) => {
+        // 获取团购列表
+        console.log(1233, newValue);
+        if (newValue) {
+          getPmsGroupPurchaseList({
+            tribeId: newValue.tribeId,
+          }).then((res) => {
+            res.result.forEach((item) => {
+              item.mosaicRange = JSON.parse(item.mosaicRange);
+              item.deliveryTime = JSON.parse(item.deliveryTime);
+            });
+            groupPurchaseList.value = res.result;
+          });
+        }
       },
       {
-        immutable: true,
+        immediate: true,
+        deep: true,
       }
     );
-
-    const { currentTribe } = storeToRefs(tribe)
-    console.log(4321, currentTribe)
-
     return {
       ...toRefs(state),
       location,
       goUrl,
       getLocation,
-      currentTribe
+      currentTribe,
+      groupPurchaseList,
+      allFoodList,
+      shuffle,
+      updateCurrentGroupPurchase
     };
   },
 };
@@ -519,7 +369,6 @@ export default {
                 .food-img {
                   height: 80px;
                   width: 80px;
-                  background: url("https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fitem%2F201902%2F19%2F20190219140255_mkuch.thumb.400_0.jpg&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1649158655&t=d3f358785848b00675721f39378f4917");
                   background-size: 100% 100%;
                 }
                 .food-title {

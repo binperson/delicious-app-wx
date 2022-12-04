@@ -22,6 +22,29 @@
           <div class="pay-bar">
             <nut-divider dashed />
             <view class="address-box">
+              <view @click="addAddress" class="show-address">
+                <view class="l">
+                  <view class="name-tel"
+                    >{{ curAddressData.linkMan }} {{ curAddressData.mobile }}</view
+                  >
+                  <view class="addr-text">{{ curAddressData.address }}</view>
+                </view>
+                <view class="r">
+                  <nut-icon name="right" />
+                </view>
+              </view>
+            </view>
+            <nut-cell
+              title="送达时间"
+              desc="请选择"
+              is-link
+              @click="startSelectTime"
+            />
+            <nut-divider dashed />
+          </div>
+          <!-- <div class="pay-bar">
+            <nut-divider dashed />
+            <view class="address-box">
               <view
                 class="add-address"
                 v-if="!curAddressData"
@@ -53,20 +76,20 @@
               @click="startSelectTime"
             />
             <nut-divider dashed />
-          </div>
+          </div> -->
           <view class="goods-title">商品明细</view>
-          <nut-row class="detail">
+          <nut-row v-for="item in cartInfo" :key="item.skuId" class="detail">
             <nut-col :span="18">
               <view class="detail-1">水煮鱼</view>
             </nut-col>
             <nut-col :span="3">
-              <view class="num">x1</view>
+              <view class="num">x{{item.count}}</view>
             </nut-col>
             <nut-col :span="3">
-              <view class="price">¥1.2</view>
+              <view class="price">¥{{item.price}}</view>
             </nut-col>
           </nut-row>
-          <view class="amount">共计 1 件商品，小计：¥ 1.2</view>
+          <view class="amount">共计 {{ totalCount }} 件商品，小计：¥ {{ totalPrice }}</view>
           <nut-input
             class="remark"
             v-model="remark"
@@ -82,7 +105,8 @@
             <text>
               合计：
             </text>
-            <text class="submit-bar__price">
+            <nut-price :price="totalPrice" size="normal" :thousands="true" />
+            <!-- <text class="submit-bar__price">
               <text class="submit-bar__currency">
                 ¥
               </text>
@@ -92,7 +116,7 @@
               <text>
                 .00
               </text>
-            </text>
+            </text> -->
           </div>
           <nut-button type="danger">立即支付</nut-button>
         </div>
@@ -126,10 +150,17 @@
 </template>
 
 <script>
-import { ref, reactive, toRefs, onMounted } from "vue";
+import { ref, reactive, toRefs, onMounted, computed } from "vue";
 import DeliView from "@/components/DeliView/index.vue";
 import DeliNavbar from "@/components/DeliNavbar/index.vue";
 import { back } from "@/utils/index";
+import Taro from "@tarojs/taro";
+import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
+import { tribeStore } from "@/store/modules/tribe.js";
+const groupPurchase = groupPurchaseStore();
+const tribe = tribeStore();
+import { storeToRefs } from "pinia";
+import { getCart } from "@/api/cart";
 
 export default {
   name: "SelectTribe",
@@ -138,7 +169,12 @@ export default {
     DeliNavbar,
   },
   setup() {
+    const userInfo = Taro.getStorageSync("userInfo") || {};
+    const { currentGroupPurchase } = storeToRefs(groupPurchase);
+    const { currentTribe } = storeToRefs(tribe);
+    console.log('currentGroupPurchase', currentGroupPurchase)
     const remark = ref("");
+    const cartInfo = ref([])
     const state = reactive({
       visible: false,
       currentKey: 0,
@@ -183,28 +219,55 @@ export default {
       console.log(123, obj);
     };
 
+    const totalPrice = computed(() => {
+      let total = 0;
+      cartInfo?.value?.forEach((food) => {
+        total += food.price * food.count;
+      });
+      return total;
+    });
+
+    const totalCount = computed(() => {
+      let total = 0;
+      cartInfo.value.forEach((food) => {
+        total += food.count;
+      });
+      return total;
+    });
+
     onMounted(() => {
       state.currentTime.push({
         key: state.currentKey,
         list: [],
       });
     });
-    const curAddressData = ref(null);
+    console.log('currentTribe', currentTribe)
+    const curAddressData = ref({
+      linkMan: '',
+      mobile: userInfo.mobile,
+      address: currentTribe.value.tribeName,
+    });
 
     const addAddress = () => {
       wx.chooseAddress({
         success(res) {
-          curAddressData.value = [
-            {
-              linkMan: res.userName,
-              mobile: res.telNumber,
-              address: `${res.provinceName}-${res.cityName}-${res.detailInfo}`,
-            },
-          ];
+          curAddressData.value = {
+            ...curAddressData.value,
+            linkMan: '',
+            mobile: res.telNumber
+            // address: `${res.provinceName}-${res.cityName}-${res.detailInfo}`,
+          };
         },
       });
     };
     const selectAddress = () => {};
+    const getCartInfo = () => {
+      getCart().then(res => {
+        console.log(121212, res.result)
+        cartInfo.value = res.result
+      })
+    }
+    getCartInfo()
     return {
       back,
       shopInfo: {
@@ -221,6 +284,9 @@ export default {
       selectTime,
       startSelectTime,
       remark,
+      totalCount,
+      totalPrice,
+      cartInfo
     };
   },
 };
