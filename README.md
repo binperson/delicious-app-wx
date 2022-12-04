@@ -27,4 +27,3 @@
 <img src="https://gitee.com/binperson/images/raw/master/WechatIMG352.jpeg" width="200px">
 <img src="https://gitee.com/binperson/images/raw/master/WechatIMG353.jpeg" width="200px">
 <img src="https://gitee.com/binperson/images/raw/master/WechatIMG354.jpeg" width="200px">
-<img src="https://gitee.com/binperson/images/raw/master/WechatIMG355.jpeg" width="200px">
