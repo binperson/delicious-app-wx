@@ -7,3 +7,13 @@
 如果本项目对您有所帮助或者启发，请给我们 Star 吧，您的鼓励是我们最大对动力～
 
 希望找一些志同道合的朋友一起来完善这个开源项目，持续更新下去，有兴趣的可以联系管理员微信（xbin666666）加入微信群，期待您的建议！
+
+
+## 加微信联系我
+
+<img src="https://gitee.com/binperson/images/raw/master/WechatIMG355.jpeg" width="200px">
+
+## 本项目使用了下面的组件、库，在此鸣谢
+
+ - [taro](https://taro.zone/)-Taro多端统一开发解决方案
+ - [nutui](https://nutui.jd.com/#/)-京东风格的轻量级移动端 Vue 组件库
