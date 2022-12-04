@@ -59,7 +59,7 @@ export default {
       default: 0,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const totalCount = computed(() => {
       let count = 0;
       props.selectFoods.forEach((food) => {
@@ -69,7 +69,6 @@ export default {
       return count;
     });
     const totalPrice = computed(() => {
-      console.log("props.selectFoods", props.selectFoods);
       let total = 0;
       props.selectFoods.forEach((food) => {
         total += food.price * food.count;
@@ -97,7 +96,12 @@ export default {
         return "enough";
       }
     });
-    const pay = () => {};
+    const pay = () => {
+      console.log("payClass", payClass)
+      if (payClass.value === 'enough') {
+        emit('pay');
+      }
+    };
     return {
       payDesc,
       totalCount,

@@ -15,11 +15,12 @@ const config = {
   plugins: ["@tarojs/plugin-html", ["@quarkcms/plugin-mock", {
     host: "localhost",
     port: 9999
-  }]],
+  }], 'taro-plugin-pinia'],
   alias: {
     "@/components": path.resolve(__dirname, "..", "src/components"),
     "@/utils": path.resolve(__dirname, "..", "src/utils"),
     "@/api": path.resolve(__dirname, "..", "src/api"),
+    "@/store": path.resolve(__dirname, "..", "src/store"),
     "@/style": path.resolve(__dirname, "..", "src/style"),
   },
   defineConstants: {},

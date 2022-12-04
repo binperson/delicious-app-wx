@@ -1,12 +1,12 @@
 <template>
   <view class="local-info tribe-block">
-    <view class="nearby top">附近共36个站</view>
+    <view class="nearby top">附近共{{ tribeLength }}个站</view>
     <view class="location bottom">
-      <view class="left">
-        当前地址：华龙网总部
-      </view>
+      <view class="left"> 当前地址：{{ location.name }} </view>
       <view class="right">
-        <nut-button size="small" plain type="primary" @click="changeLocation">更换地址</nut-button>
+        <nut-button size="small" plain type="primary" @click="changeLocation"
+          >更换地址</nut-button
+        >
       </view>
     </view>
   </view>
@@ -14,14 +14,26 @@
 <script>
 export default {
   name: "LocalInfo",
+  props: {
+    location: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+    tribeLength: {
+      type: Number,
+      default: 0,
+    },
+  },
   setup(_, { emit }) {
     const changeLocation = () => {
-      emit('changeLocation')
-    }
+      emit("changeLocation");
+    };
     return {
-      changeLocation
-    }
-  }
+      changeLocation,
+    };
+  },
 };
 </script>
 <style lang="less">

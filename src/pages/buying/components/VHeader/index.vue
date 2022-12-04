@@ -1,7 +1,10 @@
 <template>
-  <div class="t-v-header" :style="{
-    paddingTop: `${menuRect.top}px`,
-  }">
+  <div
+    class="t-v-header"
+    :style="{
+      paddingTop: `${menuRect.top}px`,
+    }"
+  >
     <div class="content-wrapper">
       <div class="avatar">
         <img width="64px" height="64px" :src="seller.avatar" />
@@ -12,15 +15,32 @@
           <span class="name">{{ seller.name }}</span>
         </div>
         <div class="description">
-          拼成范围50~120单/已拼60单(已拼成)
+          拼成范围{{ currentGroupPurchase.mosaicRange[0] }}~{{
+            currentGroupPurchase.mosaicRange[1]
+          }}单/已拼{{ currentGroupPurchase.orderNum || 0 }}单(已拼成)
         </div>
         <div v-if="seller.supports" class="support">
           <!-- <support-ico :size="1" :type="seller.supports[0].type"></support-ico> -->
-          <span class="text">送达时间：2022-08-24 22:17:17~2022-08-24 22:17:17</span>
+          <span class="text"
+            >送达时间：{{
+              moment(currentGroupPurchase.deliveryTime[0]).format(
+                "YYYY-MM-DD HH:mm:ss"
+              )
+            }}~{{
+              moment(currentGroupPurchase.deliveryTime[1]).format(
+                "YYYY-MM-DD HH:mm:ss"
+              )
+            }}</span
+          >
         </div>
       </div>
       <div v-if="seller.supports" class="support-count">
-        <span class="count">00:00:59后结束</span>
+        <span class="count"
+          >{{ currentGroupPurchase.discount }}折特惠/<nut-countdown
+            :end-time="currentGroupPurchase.endTime"
+          ></nut-countdown
+          >后结束</span
+        >
         <i class="icon-keyboard_arrow_right"></i>
       </div>
     </div>
@@ -37,6 +57,10 @@
 
 <script>
 import Taro from "@tarojs/taro";
+import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
+const groupPurchase = groupPurchaseStore();
+import { storeToRefs } from "pinia";
+import moment from "moment";
 export default {
   name: "VHeader",
   components: {},
@@ -77,9 +101,12 @@ export default {
         "营业时间:10:00-20:30",
       ],
     };
+    const { currentGroupPurchase } = storeToRefs(groupPurchase);
     return {
+      currentGroupPurchase,
       seller,
       menuRect: Taro.getMenuButtonBoundingClientRect(),
+      moment,
     };
   },
 };
@@ -155,12 +182,14 @@ export default {
       border-radius: 14px;
       background: rgba(7, 17, 27, 0.2);
       .count {
-        font-size: 12px-s;
+        display: flex;
+        align-items: center;
+        font-size: 12px;
       }
       .icon-keyboard_arrow_right {
         margin-left: 2px;
         line-height: 24px;
-        font-size: 12px-s;
+        font-size: 12px;
       }
     }
   }
@@ -187,12 +216,12 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 12px-s;
+      font-size: 12px;
     }
     .icon-keyboard_arrow_right {
       flex: 0 0 10px;
       width: 10px;
-      font-size: 12px-s;
+      font-size: 12px;
     }
   }
 

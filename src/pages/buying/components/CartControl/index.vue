@@ -25,12 +25,13 @@ export default {
       } else {
         this.food.count++;
       }
-       console.log("this.food.count", this.food.count)
-      this.$emit('add', event.target);
+      console.log("this.food.count", this.food.count)
+      this.$emit('add', this.food);
     },
     decrease() {
       if (this.food.count) {
         this.food.count--;
+        this.$emit('decrease', this.food);
       }
     },
   },

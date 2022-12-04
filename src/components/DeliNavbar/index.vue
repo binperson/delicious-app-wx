@@ -44,7 +44,6 @@ export default {
       menuRect: Taro.getMenuButtonBoundingClientRect(),
       statusBarHeight: Taro.getSystemInfoSync().statusBarHeight,
     });
-    console.log(123, props)
     return {
       ...toRefs(state),
     };

@@ -15,7 +15,7 @@
             </view>
             <view class="base-info">
               <view class="name">手机用户</view>
-              <view class="iphone">手机号：19923199509</view>
+              <view class="iphone">手机号：{{userInfo.mobile}}</view>
             </view>
           </view>
           <view class="app-info">
@@ -115,7 +115,7 @@
             <view class="title">
               我的部落
             </view>
-            <view class="op-wrap">
+            <view @click="goUrl('/pages/main/select-tribe/index')" class="op-wrap">
               全部
               <nut-icon
                 name="iconfont iconfont icon-black-right"
@@ -124,12 +124,12 @@
             </view>
           </view>
           <view class="tribe-content">
-            <view class="tribe-name">产业园一期十栋</view>
-            <view class="area-name">重庆市渝北区</view>
+            <view class="tribe-name">{{ currentTribe.tribeName || "--" }}</view>
+            <view class="area-name">{{ currentTribe.address || "--" }}</view>
             <view class="info">
               <view class="left">
                 <view class="tribe-mgt">
-                  部落长：陈大壮
+                  部落长：{{ currentTribe.manager }}
                 </view>
                 <view class="time">
                   咨询时间：09：00 ~ 21：00
@@ -139,6 +139,7 @@
                 <nut-icon
                   size="20"
                   name="iconfont iconfont icon-dianhua"
+                  @click="callPhone"
                 ></nut-icon>
               </view>
             </view>
@@ -168,9 +169,13 @@
 </template>
 
 <script>
+import Taro from "@tarojs/taro";
 import { ref } from "vue";
 import DeliView from "@/components/DeliView/index.vue";
 import { goUrl } from "@/utils/index";
+import { tribeStore } from "@/store/modules/tribe.js";
+import { storeToRefs } from "pinia";
+const tribe = tribeStore();
 export default {
   name: "MY",
   components: {
@@ -184,10 +189,21 @@ export default {
         triggered.value = false;
       }, 1000);
     };
+    const { currentTribe } = storeToRefs(tribe);
+    const callPhone = () => {
+      Taro.makePhoneCall({
+        phoneNumber: currentTribe.value.phone,
+      });
+    };
+    const userInfo = Taro.getStorageSync("userInfo") || {};
+    console.log('userInfo', userInfo)
     return {
       triggered,
       refresherrefresh,
-      goUrl
+      goUrl,
+      currentTribe,
+      callPhone,
+      userInfo,
     };
   },
 };
@@ -421,6 +437,10 @@ export default {
           .left {
             display: flex;
             margin-right: 8px;
+
+            .time {
+              margin-left: 6px;
+            }
           }
         }
       }

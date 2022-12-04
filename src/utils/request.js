@@ -101,7 +101,7 @@ export function uploadFile (path, type) {
       name: 'file',
       header: {
         'content-type': 'application/x-www-form-urlencoded',
-        'x-larbor-token' :`${token}`
+        'Authorization' :`${token}`
       },
       success: res => {
         let url = JSON.parse(res.data).data.cloudUrl
@@ -130,6 +130,7 @@ function throwError(error, reject) {
 export default {
   request(options, method) {
     const { url } = options;
+    console.log(url)
     const token = Taro.getStorageSync(DELI_TOKEN_NAME);
     let timer = setTimeout(() => {
       Taro.showLoading({
@@ -137,16 +138,20 @@ export default {
         title: "加载数据中..."
       });
     }, 3000)
+    const header = {
+      "content-type": "application/json",
+      'Authorization' :`${token}`,
+      ...options.header
+    }
+    if (url === '/app/login') {
+      delete  header.Authorization
+    }
     return new Promise((resolve, reject) => {
       Taro.request({
         ...options,
         method: method || "GET",
         url: `${DELI_BASE_URL}${url}`,
-        header: {
-          "content-type": "application/json",
-          'x-larbor-token' :`${token}`,
-          ...options.header
-        }
+        header
       })
         .then(checkHttpStatus)
         .then(res => {

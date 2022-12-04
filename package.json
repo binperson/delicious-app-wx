@@ -41,7 +41,11 @@
     "@tarojs/plugin-html": "3.3.18",
     "@tarojs/runtime": "3.4.1",
     "@tarojs/taro": "3.4.1",
+    "jwt-decode": "^3.1.2",
     "mockjs": "^1.1.0",
+    "moment": "^2.29.4",
+    "pinia": "^2.0.23",
+    "taro-plugin-pinia": "^1.0.0",
     "vue": "^3.0.0"
   },
   "devDependencies": {
