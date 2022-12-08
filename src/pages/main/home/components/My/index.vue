@@ -24,7 +24,7 @@
                 <nut-icon name="iconfont iconfont icon-meishi"></nut-icon>
                 <view class="name">美食盒子部落</view>
               </view>
-              <nut-button size="mini" type="warning">
+              <!-- <nut-button size="mini" type="warning">
                 <view class="invite">
                   <view class="text">邀请立省</view>
                   <nut-icon
@@ -33,7 +33,7 @@
                     size="12"
                   ></nut-icon>
                 </view>
-              </nut-button>
+              </nut-button> -->
             </view>
           </view>
         </view>
@@ -145,7 +145,7 @@
             </view>
           </view>
         </view>
-        <view class="func-wrap">
+        <!-- <view class="func-wrap">
           <view class="title-wrap">
             <view class="title">
               常用功能
@@ -162,7 +162,7 @@
               </div>
             </div>
           </view>
-        </view>
+        </view> -->
       </view>
     </scroll-view>
   </view>

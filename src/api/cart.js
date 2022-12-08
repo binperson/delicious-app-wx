@@ -20,3 +20,27 @@ export function getCart() {
     url: `/cart/getCart`,
   });
 }
+
+// 订单确认
+export function confirmOrder() {
+  return api.post({
+    url: `/orders/_confirm`,
+  });
+}
+
+// 订单提交
+export function submitOrder(data) {
+  return api.post({
+    url: `/orders/_submit`,
+    data
+  });
+}
+
+// 订单支付
+
+export function payOrder(orderId) {
+  return api.post({
+    url: `/orders/${orderId}/_pay`,
+    data
+  });
+}

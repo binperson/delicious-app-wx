@@ -10,7 +10,7 @@
     </view>
     <view class="bottom">
       <view class="left">
-        当前地址：{{ location.name }}
+        当前地址：{{ tribe.address }}
       </view>
     </view>
   </view>

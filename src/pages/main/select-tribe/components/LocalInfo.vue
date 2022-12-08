@@ -40,5 +40,14 @@ export default {
 @import "../index.less";
 .local-info {
   background-color: #f5f5f5;
+
+  .location {
+    display: flex;
+    justify-content: space-between;
+
+    .left {
+      max-width: 78%;
+    }
+  }
 }
 </style>

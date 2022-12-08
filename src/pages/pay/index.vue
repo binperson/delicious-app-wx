@@ -80,7 +80,7 @@
           <view class="goods-title">商品明细</view>
           <nut-row v-for="item in cartInfo" :key="item.skuId" class="detail">
             <nut-col :span="18">
-              <view class="detail-1">水煮鱼</view>
+              <view class="detail-1">{{item.spuName}}</view>
             </nut-col>
             <nut-col :span="3">
               <view class="num">x{{item.count}}</view>
@@ -118,7 +118,7 @@
               </text>
             </text> -->
           </div>
-          <nut-button type="danger">立即支付</nut-button>
+          <nut-button @click="handlePay" type="danger">立即支付</nut-button>
         </div>
       </template>
     </DeliView>
@@ -160,7 +160,7 @@ import { tribeStore } from "@/store/modules/tribe.js";
 const groupPurchase = groupPurchaseStore();
 const tribe = tribeStore();
 import { storeToRefs } from "pinia";
-import { getCart } from "@/api/cart";
+import { getCart, confirmOrder, submitOrder, payOrder } from "@/api/cart";
 
 export default {
   name: "SelectTribe",
@@ -268,6 +268,18 @@ export default {
       })
     }
     getCartInfo()
+    const handlePay = () => {
+      confirmOrder().then(res => {
+        console.log('confirmOrder', res)
+        submitOrder({
+          ...res.result,
+          payAmount: totalPrice * 100,
+          totalAmount: totalPrice * 100
+        }).then(r => {
+          console.log('submitOrder', r)
+        })
+      })
+    }
     return {
       back,
       shopInfo: {
@@ -286,7 +298,8 @@ export default {
       remark,
       totalCount,
       totalPrice,
-      cartInfo
+      cartInfo,
+      handlePay
     };
   },
 };
