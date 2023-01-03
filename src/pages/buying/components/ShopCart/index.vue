@@ -3,7 +3,7 @@
     <div class="content">
       <div class="content-left">
         <div class="logo-wrapper">
-          <div class="logo" :class="{ highlight: totalCount > 0 }">
+          <div class="logo" @click="showBottom = true" :class="{ highlight: totalCount > 0 }">
             <!-- <i
               class="icon-shopping_cart"
               :class="{ highlight: totalCount > 0 }"
@@ -35,10 +35,11 @@
       </div>
     </div>
   </div>
+  <nut-popup position="bottom" v-model:visible="showBottom"></nut-popup>
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import Bubble from "../Bubble";
 export default {
   name: "ShopCart",
@@ -60,6 +61,7 @@ export default {
     },
   },
   setup(props, { emit }) {
+    const showBottom = ref(false)
     const totalCount = computed(() => {
       let count = 0;
       props.selectFoods.forEach((food) => {
@@ -108,6 +110,7 @@ export default {
       payClass,
       totalPrice,
       pay,
+      showBottom
     };
   },
 };

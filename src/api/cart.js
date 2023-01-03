@@ -44,3 +44,10 @@ export function payOrder(orderId) {
     data
   });
 }
+
+// 删除购物车
+export function deleteCart() {
+  return api.post({
+    url: `/cart/deleteCart`
+  });
+}

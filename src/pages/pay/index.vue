@@ -25,7 +25,8 @@
               <view @click="addAddress" class="show-address">
                 <view class="l">
                   <view class="name-tel"
-                    >{{ curAddressData.linkMan }} {{ curAddressData.mobile }}</view
+                    >{{ curAddressData.linkMan }}
+                    {{ curAddressData.mobile }}</view
                   >
                   <view class="addr-text">{{ curAddressData.address }}</view>
                 </view>
@@ -36,7 +37,7 @@
             </view>
             <nut-cell
               title="送达时间"
-              desc="请选择"
+              :desc="currentTime[0] && currentTime[0].list && currentTime[0].list[0] ? currentTime[0].list[0] : '请选择'"
               is-link
               @click="startSelectTime"
             />
@@ -78,18 +79,43 @@
             <nut-divider dashed />
           </div> -->
           <view class="goods-title">商品明细</view>
-          <nut-row v-for="item in cartInfo" :key="item.skuId" class="detail">
-            <nut-col :span="18">
-              <view class="detail-1">{{item.spuName}}</view>
+          <nut-row class="detail">
+            <nut-col :span="6">
+              <view class="detail-1">商品}</view>
+            </nut-col>
+            <nut-col :span="6">
+              <view class="num">单价</view>
+            </nut-col>
+            <nut-col :span="6">
+              <view class="num">包装费</view>
             </nut-col>
             <nut-col :span="3">
-              <view class="num">x{{item.count}}</view>
+              <view class="num">数量</view>
             </nut-col>
             <nut-col :span="3">
-              <view class="price">¥{{item.price}}</view>
+              <view class="price">总计</view>
             </nut-col>
           </nut-row>
-          <view class="amount">共计 {{ totalCount }} 件商品，小计：¥ {{ totalPrice }}</view>
+          <nut-row v-for="item in cartInfo" :key="item.skuId" class="detail">
+            <nut-col :span="6">
+              <view class="detail-1">{{ item.spuName }}</view>
+            </nut-col>
+            <nut-col :span="6">
+              <view class="num">{{ item.price }}</view>
+            </nut-col>
+            <nut-col :span="6">
+              <view class="num">{{ item.packageAmt ? item.packageAmt : 0 }}</view>
+            </nut-col>
+            <nut-col :span="3">
+              <view class="num">x{{ item.count }}</view>
+            </nut-col>
+            <nut-col :span="3">
+              <view class="price">¥{{ (item.price + item.packageAmt) * item.count }}</view>
+            </nut-col>
+          </nut-row>
+          <view class="amount"
+            >共计 {{ totalCount }} 件商品，小计：¥ {{ totalPrice }}</view
+          >
           <nut-input
             class="remark"
             v-model="remark"
@@ -133,18 +159,13 @@
   >
     <template #pannel>
       <nut-timepannel
-        name="2月23日(今天)"
+        :name="getDeliveryTimeDay(currentGroupPurchase.deliveryTime[0])"
         pannel-key="0"
-        @change="handleChange"
-      ></nut-timepannel>
-      <nut-timepannel
-        name="2月24日(星期三)"
-        pannel-key="1"
         @change="handleChange"
       ></nut-timepannel>
     </template>
     <template #detail>
-      <nut-timedetail :times="times1" @select="selectTime"></nut-timedetail>
+      <nut-timedetail :times="times" @select="selectTime"></nut-timedetail>
     </template>
   </nut-timeselect>
 </template>
@@ -160,7 +181,8 @@ import { tribeStore } from "@/store/modules/tribe.js";
 const groupPurchase = groupPurchaseStore();
 const tribe = tribeStore();
 import { storeToRefs } from "pinia";
-import { getCart, confirmOrder, submitOrder, payOrder } from "@/api/cart";
+import { getCart, confirmOrder, submitOrder, payOrder, deleteCart } from "@/api/cart";
+import { subsectionTime, getGroupTime, formatDate } from "@/utils/date";
 
 export default {
   name: "SelectTribe",
@@ -172,21 +194,23 @@ export default {
     const userInfo = Taro.getStorageSync("userInfo") || {};
     const { currentGroupPurchase } = storeToRefs(groupPurchase);
     const { currentTribe } = storeToRefs(tribe);
-    console.log('currentGroupPurchase', currentGroupPurchase)
+
+    const timeObj = subsectionTime(currentGroupPurchase.value.deliveryTime, 5);
+    const groupTime = getGroupTime(timeObj, 2);
+    const groupTimeArr = [];
+    groupTime.forEach((item) => {
+      groupTimeArr.push(item.join("-"));
+    });
     const remark = ref("");
-    const cartInfo = ref([])
+    const cartInfo = ref([]);
     const state = reactive({
       visible: false,
       currentKey: 0,
       currentTime: [],
-      times1: [
+      times: [
         {
           key: 0,
-          list: ["9:00-10:00", "10:00-11:00", "11:00-12:00"],
-        },
-        {
-          key: 1,
-          list: ["9:00-10:00", "10:00-11:00"],
+          list: groupTimeArr,
         },
       ],
     });
@@ -205,14 +229,14 @@ export default {
     };
 
     const selectTime = (item) => {
+      state.currentTime[0]["list"] = []
       let curTimeIndex = state.currentTime[0]["list"].findIndex(
         (time) => time === item
       );
       if (curTimeIndex === -1) {
         state.currentTime[0]["list"].push(item);
-      } else {
-        state.currentTime[0]["list"].splice(curTimeIndex, 1);
       }
+      state.visible = false;
     };
 
     const handleSelected = (obj) => {
@@ -222,7 +246,7 @@ export default {
     const totalPrice = computed(() => {
       let total = 0;
       cartInfo?.value?.forEach((food) => {
-        total += food.price * food.count;
+        total += (food.price + Number(food.packageAmt)) * food.count;
       });
       return total;
     });
@@ -241,9 +265,8 @@ export default {
         list: [],
       });
     });
-    console.log('currentTribe', currentTribe)
     const curAddressData = ref({
-      linkMan: '',
+      linkMan: "",
       mobile: userInfo.mobile,
       address: currentTribe.value.tribeName,
     });
@@ -253,8 +276,8 @@ export default {
         success(res) {
           curAddressData.value = {
             ...curAddressData.value,
-            linkMan: '',
-            mobile: res.telNumber
+            linkMan: "",
+            mobile: res.telNumber,
             // address: `${res.provinceName}-${res.cityName}-${res.detailInfo}`,
           };
         },
@@ -262,24 +285,70 @@ export default {
     };
     const selectAddress = () => {};
     const getCartInfo = () => {
-      getCart().then(res => {
-        console.log(121212, res.result)
-        cartInfo.value = res.result
-      })
-    }
-    getCartInfo()
+      getCart().then((res) => {
+        cartInfo.value = res.result;
+      });
+    };
+    getCartInfo();
     const handlePay = () => {
-      confirmOrder().then(res => {
-        console.log('confirmOrder', res)
+      confirmOrder().then((res) => {
+        if (!(state.currentTime[0]?.list[0])) {
+          Taro.showToast({
+            title: '请选择送达时间',
+            icon: 'none'
+          })
+          return
+        }
         submitOrder({
           ...res.result,
-          payAmount: totalPrice * 100,
-          totalAmount: totalPrice * 100
-        }).then(r => {
-          console.log('submitOrder', r)
-        })
-      })
-    }
+          deliveryAddress: currentTribe.value.tribeName,
+          deliveryTime: formatDate(
+            currentGroupPurchase.value.deliveryTime[0],
+            "yyyy-MM-dd"
+          ) + ' ' + state.currentTime[0]?.list[0],
+          phone: userInfo.mobile,
+          payAmount: totalPrice.value * 100,
+          totalAmount: totalPrice.value * 100,
+          remark: remark.value
+        }).then((r) => {
+          if (r.code !== 10000) {
+            Taro.showToast({
+              title: r.msg,
+              icon: 'none'
+            })
+            // deleteCart().then(() => {
+            //   getCartInfo()
+            // })
+            return
+          }
+        });
+      });
+    };
+    const isToday = (str) => {
+      let d = new Date(str).setHours(0, 0, 0, 0);
+      let today = new Date().setHours(0, 0, 0, 0);
+
+      let obj = {
+        "-86400000": "昨天",
+        0: "今天",
+        86400000: "明天",
+      };
+
+      return obj[d - today] || "";
+    };
+    const getDeliveryTimeDay = () => {
+      const isTodayStr = isToday(currentGroupPurchase.value.deliveryTime[0])
+      if (!isTodayStr) {
+        return `${formatDate(
+          currentGroupPurchase.value.deliveryTime[0],
+          "MM月dd日"
+        )}`
+      }
+      return `${formatDate(
+        currentGroupPurchase.value.deliveryTime[0],
+        "MM月dd日"
+      )}(${isTodayStr})`;
+    };
     return {
       back,
       shopInfo: {
@@ -299,7 +368,11 @@ export default {
       totalCount,
       totalPrice,
       cartInfo,
-      handlePay
+      handlePay,
+      formatDate,
+      currentGroupPurchase,
+      isToday,
+      getDeliveryTimeDay,
     };
   },
 };
