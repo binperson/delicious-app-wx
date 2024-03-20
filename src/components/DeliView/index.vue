@@ -19,7 +19,6 @@ export default {
     },
   },
   setup(props, { slots }) {
-    console.log(333, slots);
   },
 };
 </script>

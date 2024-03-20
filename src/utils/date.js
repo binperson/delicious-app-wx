@@ -60,6 +60,7 @@ export function subsectionTime(SJD, cishu) {
       }
       return `${Y}-${Mon}-${Day} ${H}:${Min}:${S}`
   }
+  SJD[0] = SJD[0] > Date.now() ? SJD[0] : Date.now()
   var xiangchabi = parseInt((SJD[1] - SJD[0]) / cishu);
   var SJD_json = [];
   for(var i = 0;i<cishu;i++){

@@ -1,25 +1,29 @@
 <template>
   <div class="shop-cart">
     <div class="content">
-      <div class="content-left">
+      <div class="content-left" :style="style">
         <div class="logo-wrapper">
-          <div class="logo" @click="showBottom = true" :class="{ highlight: totalCount > 0 }">
+          <div
+            class="logo"
+            @click="showBottom"
+            :class="{ highlight: totalCount > 0 }"
+          >
             <!-- <i
               class="icon-shopping_cart"
               :class="{ highlight: totalCount > 0 }"
             ></i> -->
-            <nut-icon
+            <IconFont
               v-if="totalCount > 0"
               name="iconfont iconfont icon-shoppingcart-highlight"
               color="#fff"
               size="24"
-            ></nut-icon>
-            <nut-icon
+            ></IconFont>
+            <IconFont
               v-else
               name="iconfont iconfont icon-shoppingcart"
               color="#fff"
               size="24"
-            ></nut-icon>
+            ></IconFont>
           </div>
           <div class="num" v-show="totalCount > 0">
             <Bubble :num="totalCount"></Bubble>
@@ -31,19 +35,24 @@
         <div class="desc">另需配送费￥{{ deliveryPrice }}元</div>
       </div>
       <div class="content-right" @click="pay">
-        <div class="pay" :class="payClass">{{ payDesc }}</div>
+        <div class="pay" :style="style" :class="payClass">{{ payDesc }}</div>
       </div>
     </div>
   </div>
-  <nut-popup position="bottom" v-model:visible="showBottom"></nut-popup>
 </template>
 
 <script>
 import { computed, ref } from "vue";
 import Bubble from "../Bubble";
+import { IconFont } from "@nutui/icons-vue-taro";
+import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
+import { storeToRefs } from "pinia";
+import { multiply, add } from "@/utils/math";
+import Taro from "@tarojs/taro";
+const groupPurchase = groupPurchaseStore();
 export default {
   name: "ShopCart",
-  components: { Bubble },
+  components: { Bubble, IconFont },
   props: {
     minPrice: {
       type: Number,
@@ -61,29 +70,28 @@ export default {
     },
   },
   setup(props, { emit }) {
-    const showBottom = ref(false)
     const totalCount = computed(() => {
       let count = 0;
       props.selectFoods.forEach((food) => {
         count += food.count;
       });
-      console.log(123, count);
       return count;
     });
     const totalPrice = computed(() => {
       let total = 0;
       props.selectFoods.forEach((food) => {
-        total += food.price * food.count;
+        total = add(total, multiply(food.price, food.count));
       });
       return total;
     });
     const payDesc = computed(() => {
-      console.log("totalPrice.value", totalPrice.value);
-      console.log("props.minPrice", props.minPrice);
       if (totalPrice.value === 0) {
-        return `￥${props.minPrice}元起送`;
-      } else if (totalPrice.value < props.minPrice) {
-        let diff = props.minPrice - totalPrice.value;
+        return `￥${currentGroupPurchase.value.minDeliveryPrice}元起送`;
+      } else if (
+        totalPrice.value < currentGroupPurchase.value.minDeliveryPrice
+      ) {
+        let diff =
+          currentGroupPurchase.value.minDeliveryPrice - totalPrice.value;
         return `还差￥${diff}元起送`;
       } else {
         return "去结算";
@@ -91,18 +99,31 @@ export default {
     });
 
     const payClass = computed(() => {
-      if (!totalCount.value || totalPrice.value < props.minPrice) {
+      if (
+        !totalCount.value ||
+        totalPrice.value < currentGroupPurchase.value.minDeliveryPrice
+      ) {
         return "not-enough";
       } else {
-        console.log("---2");
         return "enough";
       }
     });
     const pay = () => {
-      console.log("payClass", payClass)
-      if (payClass.value === 'enough') {
-        emit('pay');
+      if (payClass.value === "enough") {
+        emit("pay");
       }
+    };
+    const showBottom = () => {
+      emit("showBottom");
+    };
+
+    const { currentGroupPurchase } = storeToRefs(groupPurchase);
+
+    const safeInsetBottom = Taro.getStorageSync("safeInsetBottom");
+    const height = 36 + safeInsetBottom > 48 ? 36 : 48;
+    const style = {
+      paddingBottom: Taro.pxTransform(safeInsetBottom),
+      height: Taro.pxTransform(height),
     };
     return {
       payDesc,
@@ -110,7 +131,9 @@ export default {
       payClass,
       totalPrice,
       pay,
-      showBottom
+      showBottom,
+      currentGroupPurchase,
+      style,
     };
   },
 };
@@ -118,8 +141,6 @@ export default {
 
 <style lang="less">
 .shop-cart {
-  height: 100%;
-
   .content {
     display: flex;
     background: #07111b;
@@ -128,6 +149,10 @@ export default {
 
     .content-left {
       flex: 1;
+      height: 36px;
+      box-sizing: content-box;
+      padding-bottom: constant(safe-area-inset-bottom);
+      padding-bottom: env(safe-area-inset-bottom);
 
       .logo-wrapper {
         display: inline-block;
@@ -141,6 +166,10 @@ export default {
         box-sizing: border-box;
         border-radius: 50%;
         background: #07111b;
+
+        .nutui-iconfont {
+          font-family: "iconfont" !important;
+        }
 
         .logo {
           display: flex;
@@ -204,11 +233,14 @@ export default {
       width: 105px;
 
       .pay {
-        height: 48px;
-        line-height: 48px;
+        height: 36px;
+        line-height: 36px;
         text-align: center;
         font-weight: 700;
         font-size: 12px;
+        box-sizing: content-box;
+        padding-bottom: constant(safe-area-inset-bottom);
+        padding-bottom: env(safe-area-inset-bottom);
 
         &.not-enough {
           background: #333;

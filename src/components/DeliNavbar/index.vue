@@ -8,20 +8,24 @@
         marginTop: `${menuRect.top}px`,
         marginBottom: `${menuRect.top - statusBarHeight}px!important`,
         boxShadow: 'none!important',
-        color: '#000000',
         fontSize: '16px',
         background: 'transparent',
       }"
       :left-show="leftShow"
       :title="title"
       @on-click-back="back"
-    ></nut-navbar>
+    >
+    <template #[item]="data" v-for="item in Object.keys(omit($slots, 'default'))">
+      <slot :name="item" v-bind="data || {}"></slot>
+    </template>
+  </nut-navbar>
   </view>
 </template>
 
 <script>
 import { reactive, toRefs } from "vue";
 import Taro from "@tarojs/taro";
+import { omit } from 'lodash-es';
 export default {
   name: "DeliNavbar",
   components: {},
@@ -46,6 +50,7 @@ export default {
     });
     return {
       ...toRefs(state),
+      omit
     };
   },
 };
@@ -56,6 +61,15 @@ export default {
 
   text {
     color: #000 !important;
+  }
+}
+.t-deli-navbar {
+  .nut-navbar__title .title {
+    color: #000;
+  }
+
+  .nut-navbar {
+    padding: 0;
   }
 }
 </style>

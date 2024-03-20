@@ -97,8 +97,8 @@ export default {
     const selectTribe = (val) => {
       Taro.setStorageSync("currentTribe", val);
       tribe.currentTribe = val;
-      Taro.navigateBack({
-        delta: 1,
+      Taro.reLaunch({
+        url: "/pages/main/home/index",
       });
     };
 
@@ -126,12 +126,9 @@ export default {
       if (name.length < 1) {
         showPopup.value = false;
       }
-      console.log(123, name);
     };
     const close = (val) => {
-      console.log(val);
     };
-    console.log(2323, tribe);
     return {
       back,
       close,

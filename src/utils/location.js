@@ -12,7 +12,6 @@ export const getAuthority = (flag, bc) => {
       confirmText: "确认",
       cancelText: "取消",
       success: function(res) {
-        console.log(res);
         //点击“确认”时打开设置页面
         if (res.confirm) {
           wx.openSetting({

@@ -5,6 +5,9 @@
       paddingTop: `${menuRect.top}px`,
     }"
   >
+    <div class="back-h-wrapper">
+      <DeliNavbar :leftShow="true" :back="back" />
+    </div>
     <div class="content-wrapper">
       <div class="avatar">
         <img width="64px" height="64px" :src="seller.avatar" />
@@ -14,10 +17,10 @@
           <span class="brand"></span>
           <span class="name">{{ seller.name }}</span>
         </div>
-        <div class="description">
+        <div v-if="currentGroupPurchase && currentGroupPurchase.mosaicRange" class="description">
           拼成范围{{ currentGroupPurchase.mosaicRange[0] }}~{{
             currentGroupPurchase.mosaicRange[1]
-          }}单/已拼{{ currentGroupPurchase.orderNum || 0 }}单(已拼成)
+          }}单/已拼{{ currentGroupPurchase.orderNum || 0 }}单({{ currentGroupPurchaseStatus[currentGroupPurchase.status] }})
         </div>
         <div v-if="seller.supports" class="support">
           <!-- <support-ico :size="1" :type="seller.supports[0].type"></support-ico> -->
@@ -37,7 +40,7 @@
       <div v-if="seller.supports" class="support-count">
         <span class="count"
           >{{ currentGroupPurchase.discount }}折特惠/<nut-countdown
-            :end-time="currentGroupPurchase.endTime"
+            :end-time="new Date(currentGroupPurchase.endTime)"
           ></nut-countdown
           >后结束</span
         >
@@ -57,13 +60,19 @@
 
 <script>
 import Taro from "@tarojs/taro";
+import { watch } from 'vue'
 import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
 const groupPurchase = groupPurchaseStore();
 import { storeToRefs } from "pinia";
 import moment from "moment";
+import DeliNavbar from "@/components/DeliNavbar/index.vue";
+// import { back } from "@/utils/index";
+
 export default {
   name: "VHeader",
-  components: {},
+  components: {
+    DeliNavbar
+  },
   setup() {
     const seller = {
       name: "大竹林烤鱼干锅家常菜",
@@ -74,7 +83,7 @@ export default {
       foodScore: 4.3,
       rankRate: 69.2,
       minPrice: 20,
-      deliveryPrice: 4,
+      deliveryPrice: 0,
       ratingCount: 24,
       sellCount: 90,
       bulletin:
@@ -102,11 +111,27 @@ export default {
       ],
     };
     const { currentGroupPurchase } = storeToRefs(groupPurchase);
+
+    const back = () => {
+      Taro.reLaunch({
+        url: "/pages/main/home/index",
+      });
+    }
+
+    watch(() => currentGroupPurchase, (value) => {
+      
+    })
     return {
       currentGroupPurchase,
       seller,
       menuRect: Taro.getMenuButtonBoundingClientRect(),
       moment,
+      back,
+      currentGroupPurchaseStatus: {
+        0: '进行中',
+        1: '已拼成',
+        2: '拼单失败'
+      }
     };
   },
 };
@@ -118,6 +143,13 @@ export default {
   overflow: hidden;
   color: #fff;
   background: rgba(252, 114, 91, 0.5);
+  .back-h-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+  }
   .content-wrapper {
     position: relative;
     display: flex;
@@ -163,7 +195,7 @@ export default {
           margin-right: 4px;
         }
         .text {
-          line-height: 12px;
+          line-height: 14px;
           font-size: 12px;
         }
       }

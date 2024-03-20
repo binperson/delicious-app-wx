@@ -15,38 +15,35 @@
             </view>
             <view class="base-info">
               <view class="name">手机用户</view>
-              <view class="iphone">手机号：{{userInfo.mobile}}</view>
+              <view class="iphone">手机号：{{ userInfo.mobile }}</view>
             </view>
           </view>
           <view class="app-info">
             <view class="app-info-top">
               <view class="app-name">
-                <nut-icon name="iconfont iconfont icon-meishi"></nut-icon>
+                <IconFont name="iconfont iconfont icon-meishi"></IconFont>
                 <view class="name">美食盒子部落</view>
               </view>
-              <!-- <nut-button size="mini" type="warning">
+              <nut-button @click="invite" size="mini" type="warning">
                 <view class="invite">
                   <view class="text">邀请立省</view>
-                  <nut-icon
+                  <IconFont
                     name="iconfont iconfont icon-invite-right"
-                    color="#fff"
                     size="12"
-                  ></nut-icon>
+                  ></IconFont>
                 </view>
-              </nut-button> -->
+              </nut-button>
             </view>
           </view>
         </view>
       </view>
       <view class="main-content">
         <view class="account-wrap">
-          <view class="account-item">
-            <view class="num">0</view>
+          <view class="account-item" @click="goUrl('/pages/coupon/index')">
+            <view v-if="memberInfo" class="num">{{ memberInfo.couponCount }}</view>
             <view class="tag-name">
               优惠券
-              <view class="unit">
-                (张)
-              </view>
+              <view class="unit"> (张) </view>
             </view>
           </view>
           <view class="account-item">
@@ -56,71 +53,75 @@
             </view>
             <view class="tag-name">
               余额
-              <view class="unit">
-                (元)
-              </view>
+              <view class="unit"> (元) </view>
             </view>
           </view>
           <view class="account-item">
-            <view class="num">0</view>
-            <view class="tag-name">
-              积分
-            </view>
+            <view v-if="memberInfo" class="num">{{ memberInfo.point }}</view>
+            <view class="tag-name"> 积分 </view>
           </view>
         </view>
 
         <view class="order-wrap">
           <view class="title-wrap">
-            <view class="title">
+            <view class="title" @click="goUrl(`/pages/${link}/index?status=all`)">
               我的订单
             </view>
-            <view class="op-wrap">
+            <view
+              class="op-wrap"
+              @click="goUrl(`/pages/${link}/index?status=all`)"
+            >
               全部
-              <nut-icon
+              <IconFont
                 name="iconfont iconfont icon-black-right"
                 size="12"
-              ></nut-icon>
+              ></IconFont>
             </view>
           </view>
 
           <view class="order-content">
-            <view class="order-item">
+            <view
+              class="order-item"
+              @click="goUrl(`/pages/${link}/index?status=obligation`)"
+            >
               <view class="pic to-pay"></view>
-              <view class="item-name">
-                待付款
-              </view>
+              <view class="item-name"> 待付款 </view>
             </view>
-            <view class="order-item">
+            <view
+              class="order-item"
+              @click="goUrl(`/pages/${link}/index?status=underway`)"
+            >
               <view class="pic receiving"></view>
-              <view class="item-name">
-                待收货
-              </view>
+              <view class="item-name"> 进行中 </view>
             </view>
-            <view class="order-item">
+            <view
+              class="order-item"
+              @click="goUrl(`/pages/${link}/index?status=afterSale`)"
+            >
               <view class="pic after-sale"></view>
-              <view class="item-name">
-                售后
-              </view>
+              <view class="item-name"> 售后 </view>
             </view>
-            <view class="order-item">
+            <view
+              class="order-item"
+              @click="goUrl(`/pages/${link}/index?status=completed`)"
+            >
               <view class="pic complete"></view>
-              <view class="item-name">
-                已完成
-              </view>
+              <view class="item-name"> 已完成 </view>
             </view>
           </view>
         </view>
         <view class="tribe-wrap">
           <view class="title-wrap">
-            <view class="title">
-              我的部落
-            </view>
-            <view @click="goUrl('/pages/main/select-tribe/index')" class="op-wrap">
+            <view class="title"> 我的部落 </view>
+            <view
+              @click="goUrl('/pages/main/select-tribe/index')"
+              class="op-wrap"
+            >
               全部
-              <nut-icon
+              <IconFont
                 name="iconfont iconfont icon-black-right"
                 size="12"
-              ></nut-icon>
+              ></IconFont>
             </view>
           </view>
           <view class="tribe-content">
@@ -131,16 +132,14 @@
                 <view class="tribe-mgt">
                   部落长：{{ currentTribe.manager }}
                 </view>
-                <view class="time">
-                  咨询时间：09：00 ~ 21：00
-                </view>
+                <view class="time"> 咨询时间：09：00 ~ 21：00 </view>
               </view>
               <view class="right">
-                <nut-icon
+                <IconFont
                   size="20"
                   name="iconfont iconfont icon-dianhua"
                   @click="callPhone"
-                ></nut-icon>
+                ></IconFont>
               </view>
             </view>
           </view>
@@ -153,10 +152,10 @@
           </view>
           <view class="func-content">
             <div @click="goUrl('/pages/main/invite/index')" class="func-item">
-              <nut-icon
+              <IconFont
                 size="40"
                 name="iconfont iconfont icon-yaoqingyouli"
-              ></nut-icon>
+              ></IconFont>
               <div class="func-name">
                 邀请有礼
               </div>
@@ -170,19 +169,23 @@
 
 <script>
 import Taro from "@tarojs/taro";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import DeliView from "@/components/DeliView/index.vue";
 import { goUrl } from "@/utils/index";
 import { tribeStore } from "@/store/modules/tribe.js";
 import { storeToRefs } from "pinia";
+import { getCurrentMember } from "@/api/member";
+import { IconFont } from "@nutui/icons-vue-taro";
 const tribe = tribeStore();
 export default {
   name: "MY",
   components: {
     DeliView,
+    IconFont,
   },
   setup() {
     const triggered = ref(false);
+    const memberInfo = ref({}); // 用户信息
     const refresherrefresh = (e) => {
       triggered.value = true;
       setTimeout(() => {
@@ -196,7 +199,18 @@ export default {
       });
     };
     const userInfo = Taro.getStorageSync("userInfo") || {};
-    console.log('userInfo', userInfo)
+    const invite = () => {
+      goUrl("/pages/main/invite/index");
+    };
+    const handleGetCurrentMember = () => {
+      getCurrentMember().then((res) => {
+        memberInfo.value = res.result;
+      });
+    };
+    const link = computed(() =>
+      memberInfo.value.roleType === 0 ? "order" : "sub/order-admin"
+    );
+    handleGetCurrentMember();
     return {
       triggered,
       refresherrefresh,
@@ -204,6 +218,9 @@ export default {
       currentTribe,
       callPhone,
       userInfo,
+      invite,
+      memberInfo,
+      link,
     };
   },
 };
@@ -216,7 +233,7 @@ export default {
   .top {
     position: relative;
     height: 230px;
-    background: url(./bg.png);
+    background: url(../../../../../assets/bg.png);
     background-size: 100% 100%;
 
     .info {
@@ -244,7 +261,7 @@ export default {
             top: 6px;
             height: 58px;
             width: 58px;
-            background: url(./avatar.png);
+            background: url(../../../../../assets/avatar.png);
             background-size: 100% 100%;
           }
         }

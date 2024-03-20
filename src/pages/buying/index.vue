@@ -3,75 +3,90 @@
     <VHeader></VHeader>
     <div class="buying-content">
       <nut-tabs class="buying-tab" v-model="tabValue" type="smile">
-        <nut-tabpane title="商品">
-          <div class="goods-wrapper">
-            <div class="tab-wrapper">
-              <nut-tabs
-                v-model="goodsTabValue"
-                title-scroll
-                direction="vertical"
-                class="goods-tab"
-              >
-                <nut-tabpane v-for="item in list" :title="item.name">
-                  <div class="foods-wrapper">
-                    <scroll-view style="height: 100%" :scroll-y="true">
-                      <ul>
-                        <li v-for="food in item.foods" class="food-item">
-                          <div class="icon">
-                            <img width="57px" height="57px" :src="food.avatar" />
-                          </div>
-                          <div class="content">
-                            <h2 class="name">{{ food.name }}</h2>
-                            <p class="desc">{{ food.description }}</p>
-                            <!-- <div class="extra">
-                              <span class="count"
-                                >月售{{ food.sellCount }}份</span
-                              ><span>好评率{{ food.rating }}%</span>
-                            </div> -->
-                            <div class="price">
-                              <span class="now">￥{{ food.price }}</span>
-                              <span class="old" v-show="food.originPrice"
-                                >￥{{ food.originPrice }}</span
-                              >
-                            </div>
-                            <div class="cart-control-wrapper">
-                              <CartControl
-                                @add="onAdd"
-                                @decrease="onDecrease"
-                                :food="food"
-                              ></CartControl>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    </scroll-view>
+        <nut-tab-pane title="商品">
+          <GoodsSelect :list="list" />
+        </nut-tab-pane>
+        <nut-tab-pane title="商家">
+          <div class="business-wrap">
+            <div class="business-content">
+              <div class="business-item">
+                <div class="title">大竹林烤鱼干锅家常菜</div>
+                <div class="desc">周一至周日10:00-22:00</div>
+                <div class="desc">商家合作电话：19923199509</div>
+              </div>
+              <div class="business-item">
+                <div class="title">商家承诺</div>
+                <div class="promise">
+                  <div class="promise-item">食品安全</div>
+                  <div class="promise-item">亮证经营</div>
+                  <div class="promise-item">食无忧保障</div>
+                </div>
+              </div>
+              <nut-cell is-link>
+                <template v-slot>
+                  <div class="shop-wrap">
+                    <div class="shop-title">
+                      <IconFont name="location" color="#666"></IconFont
+                      >{{ `${shopInfo.name}` }}
+                      <!-- {{ `/ 距离您${shopInfo.distance}km` }} -->
+                    </div>
+                    <div class="shop-desc">
+                      {{ `${shopInfo.address}` }}
+                    </div>
                   </div>
-                </nut-tabpane>
-              </nut-tabs>
-            </div>
-            <div class="shop-cart-wrapper">
-              <ShopCart
-                :selectFoods="selectFoods"
-                :deliveryPrice="seller.deliveryPrice"
-                :minPrice="seller.minPrice"
-                @pay="pay"
-              />
+                </template>
+              </nut-cell>
             </div>
           </div>
-        </nut-tabpane>
-        <nut-tabpane title="商家">
-          商家
-          电话：19923199509
-        </nut-tabpane>
+        </nut-tab-pane>
       </nut-tabs>
     </div>
+    <div v-if="tabValue === '0'" class="shop-cart-wrapper">
+      <ShopCart
+        :selectFoods="selectFoods"
+        :deliveryPrice="seller.deliveryPrice"
+        :minPrice="seller.minPrice"
+        @pay="pay"
+        @showBottom="handleShowBottom"
+      />
+    </div>
   </div>
+  <nut-popup
+    class="shop-cart-list"
+    position="bottom"
+    v-model:visible="showBottom"
+  >
+    <div>
+      <div class="list-header">
+        <div class="title">购物车</div>
+        <span class="empty" @click="empty">清空</span>
+      </div>
+      <scroll-view class="list-content" ref="listContent">
+        <div>
+          <div class="food" v-for="(food, index) in selectFoods" :key="index">
+            <span class="name">{{ food.name }}</span>
+            <div class="price">
+              <span>￥{{ food.price * food.count }}</span>
+            </div>
+            <div class="cart-control-wrapper">
+              <CartControl
+                @add="onAdd"
+                @decrease="onDecrease"
+                :food="food"
+              ></CartControl>
+              <!-- <cart-control @add="onAdd" :food="food"></cart-control> -->
+            </div>
+          </div>
+        </div>
+      </scroll-view>
+    </div>
+  </nut-popup>
 </template>
 
 <script>
-import Taro from "@tarojs/taro";
-import VHeader from "./components/VHeader/index.vue";
 import CartControl from "./components/CartControl/index.vue";
+import GoodsSelect from '@/components/GoodsSelect/index.vue'
+import VHeader from "./components/VHeader/index.vue";
 import ShopCart from "./components/ShopCart/index.vue";
 import { ref, computed } from "vue";
 import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
@@ -81,457 +96,40 @@ import { storeToRefs } from "pinia";
 import moment from "moment";
 import { getCart, addCartItem, removeCartItem } from "@/api/cart";
 import { goUrl } from "@/utils/index";
+import { confirmOrder } from "@/api/cart";
+import Taro from "@tarojs/taro";
 export default {
   name: "Buying",
   components: {
     VHeader,
     CartControl,
     ShopCart,
+    GoodsSelect
   },
   setup() {
+    const instance = Taro.getCurrentInstance();
+    const state = instance.router.params.state;
+    if (!state) {
+      groupPurchase.updateCurrentGroupPurchase({});
+    }
+    const showBottom = ref(false);
+
+    groupPurchase.getGroupPurchaseDetail();
+
     const onAdd = (data) => {
-      addCartItem(data)
-    }
-
-    const onDecrease = (data) => {
-      removeCartItem(data)
-    }
-
-    const seller = {
-      name: "粥品香坊（回龙观）",
-      description: "蜂鸟专送",
-      deliveryTime: 38,
-      score: 4.2,
-      serviceScore: 4.1,
-      foodScore: 4.3,
-      rankRate: 69.2,
-      minPrice: 20,
-      deliveryPrice: 4,
-      ratingCount: 24,
-      sellCount: 90,
-      bulletin:
-        "粥品香坊其烹饪粥料的秘方源于中国千年古法，在融和现代制作工艺，由世界烹饪大师屈浩先生领衔研发。坚守纯天然、0添加的良心品质深得消费者青睐，发展至今成为粥类的引领品牌。是2008年奥运会和2013年园博会指定餐饮服务商。",
-      supports: [
-        { type: 0, description: "在线支付满28减5" },
-        { type: 1, description: "VC无限橙果汁全场8折" },
-        { type: 2, description: "单人精彩套餐" },
-        { type: 3, description: "该商家支持发票,请下单写好发票抬头" },
-        { type: 4, description: "已加入“外卖保”计划,食品安全保障" },
-      ],
-      avatar:
-        "http://static.galileo.xiaojukeji.com/static/tms/seller_avatar_256px.jpg",
-      pics: [
-        "http://fuss10.elemecdn.com/8/71/c5cf5715740998d5040dda6e66abfjpeg.jpeg?imageView2/1/w/180/h/180",
-        "http://fuss10.elemecdn.com/b/6c/75bd250e5ba69868f3b1178afbda3jpeg.jpeg?imageView2/1/w/180/h/180",
-        "http://fuss10.elemecdn.com/f/96/3d608c5811bc2d902fc9ab9a5baa7jpeg.jpeg?imageView2/1/w/180/h/180",
-        "http://fuss10.elemecdn.com/6/ad/779f8620ff49f701cd4c58f6448b6jpeg.jpeg?imageView2/1/w/180/h/180",
-      ],
-      infos: [
-        "该商家支持发票,请下单写好发票抬头",
-        "品类:其他菜系,包子粥店",
-        "北京市昌平区回龙观西大街龙观置业大厦底商B座102单元1340",
-        "营业时间:10:00-20:30",
-      ],
+      addCartItem(data);
     };
 
-    const list = ref([
-      {
-        name: "热销榜",
-        type: -1,
-        foods: [
-          {
-            name: "皮蛋瘦肉粥",
-            price: 10,
-            oldPrice: "",
-            description: "咸粥",
-            sellCount: 229,
-            rating: 100,
-            info:
-              "一碗皮蛋瘦肉粥，总是我到粥店时的不二之选。香浓软滑，饱腹暖心，皮蛋的Q弹与瘦肉的滑嫩伴着粥香溢于满口，让人喝这样的一碗粥也觉得心满意足",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "很喜欢的粥",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 1,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/c/cd/c12745ed8a5171e13b427dbc39401jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/c/cd/c12745ed8a5171e13b427dbc39401jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "扁豆焖面",
-            price: 14,
-            oldPrice: "",
-            description: "",
-            sellCount: 188,
-            rating: 96,
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 1,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            info: "",
-            icon:
-              "http://fuss10.elemecdn.com/c/6b/29e3d29b0db63d36f7c500bca31d8jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/c/6b/29e3d29b0db63d36f7c500bca31d8jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "葱花饼",
-            price: 10,
-            oldPrice: "",
-            description: "",
-            sellCount: 124,
-            rating: 85,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 1,
-                text: "没啥味道",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 1,
-                text: "很一般啊",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/f/28/a51e7b18751bcdf871648a23fd3b4jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/f/28/a51e7b18751bcdf871648a23fd3b4jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "牛肉馅饼",
-            price: 14,
-            oldPrice: "",
-            description: "",
-            sellCount: 114,
-            rating: 91,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 1,
-                text: "难吃不推荐",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/d/b9/bcab0e8ad97758e65ae5a62b2664ejpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/d/b9/bcab0e8ad97758e65ae5a62b2664ejpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "招牌猪肉白菜锅贴/10个",
-            price: 17,
-            oldPrice: "",
-            description: "",
-            sellCount: 101,
-            rating: 78,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 1,
-                text: "不脆,不好吃",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/7/72/9a580c1462ca1e4d3c07e112bc035jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/7/72/9a580c1462ca1e4d3c07e112bc035jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "南瓜粥",
-            price: 9,
-            oldPrice: "",
-            description: "甜粥",
-            sellCount: 91,
-            rating: 100,
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/8/a6/453f65f16b1391942af11511b7a90jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/8/a6/453f65f16b1391942af11511b7a90jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "红豆薏米美肤粥",
-            price: 12,
-            oldPrice: "",
-            description: "甜粥",
-            sellCount: 86,
-            rating: 100,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/d/22/260bd78ee6ac6051136c5447fe307jpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/d/22/260bd78ee6ac6051136c5447fe307jpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "八宝酱菜",
-            price: 4,
-            oldPrice: "",
-            description: "",
-            sellCount: 84,
-            rating: 100,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/9/b5/469d8854f9a3a03797933fd01398bjpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/9/b5/469d8854f9a3a03797933fd01398bjpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "红枣山药糙米粥",
-            price: 10,
-            oldPrice: "",
-            description: "",
-            sellCount: 81,
-            rating: 91,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/9/b5/469d8854f9a3a03797933fd01398bjpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/9/b5/469d8854f9a3a03797933fd01398bjpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-          {
-            name: "糊塌子",
-            price: 10,
-            oldPrice: "",
-            description: "",
-            sellCount: 80,
-            rating: 93,
-            info: "",
-            ratings: [
-              {
-                username: "3******c",
-                rateTime: 1469281964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "2******3",
-                rateTime: 1469271264000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-              {
-                username: "3******b",
-                rateTime: 1469261964000,
-                rateType: 0,
-                text: "",
-                avatar:
-                  "http://static.galileo.xiaojukeji.com/static/tms/default_header.png",
-              },
-            ],
-            icon:
-              "http://fuss10.elemecdn.com/0/05/097a2a59fd2a2292d08067e16380cjpeg.jpeg?imageView2/1/w/114/h/114",
-            image:
-              "http://fuss10.elemecdn.com/0/05/097a2a59fd2a2292d08067e16380cjpeg.jpeg?imageView2/1/w/750/h/750",
-          },
-        ],
-      }
-    ]);
+    const onDecrease = (data) => {
+      removeCartItem(data);
+    };
+
+    const seller = {
+      minPrice: 20,
+      deliveryPrice: 0,
+    };
+
+    const list = ref([]);
 
     const getFoodList = (data) => {
       getFoodGroupListByPage().then((res) => {
@@ -542,24 +140,22 @@ export default {
             pageNo: 1,
             pageSize: 100,
           }).then((it) => {
-            
-            it.result.records.forEach(i => {
-              console.log(3232, data)
-              const cartItem = data.find(tt => tt.skuId === i.skuId)
+            it.result.records.forEach((i) => {
+              const cartItem = data.find((tt) => tt.skuId === i.skuId);
               if (cartItem) {
-                console.log('cartItem', cartItem)
-                i.count = cartItem.count
+                i.count = cartItem.count;
               }
               i.album = JSON.parse(i.album);
               i.picUrl = JSON.parse(i.picUrl);
-              i.avatar = DELI_BASE_URL_FILE + i.picUrl[0]
-              i.endTime = moment(i.endTime).valueOf()
-              i.startTime = moment(i.startTime).valueOf()
-            })
-            console.log(1231)
-            const t = list.value.findIndex(t => t.categoryId === item.categoryId)
+              i.avatar = DELI_BASE_URL_FILE + i.picUrl[0];
+              i.endTime = moment(i.endTime).valueOf();
+              i.startTime = moment(i.startTime).valueOf();
+            });
+            const t = list.value.findIndex(
+              (t) => t.categoryId === item.categoryId
+            );
             if (t > -1) {
-              list.value[t].foods = it.result.records
+              list.value[t].foods = it.result.records;
             }
           });
         });
@@ -567,12 +163,12 @@ export default {
     };
 
     const getCartInfo = () => {
-      getCart().then(res => {
+      getCart().then((res) => {
         getFoodList(res.result || []);
-      })
-    }
+      });
+    };
 
-    getCartInfo()
+    getCartInfo();
 
     const selectFoods = computed(() => {
       let foods = [];
@@ -587,13 +183,22 @@ export default {
     });
 
     const { currentGroupPurchase } = storeToRefs(groupPurchase);
-    console.log(2323, currentGroupPurchase);
 
     const pay = () => {
-      console.log("pay", selectFoods.value)
+      confirmOrder().then((res) => {});
       // addCartItem()
-      goUrl('/pages/pay/index')
-    }
+      goUrl("/pages/pay/index");
+    };
+    const handleShowBottom = () => {
+      showBottom.value = true;
+    };
+
+    const empty = () => {};
+    const shopInfo = {
+      name: "大竹林烤鱼干锅家常菜",
+      distance: "16",
+      address: "恒山东路7号附851号(互联网产业园3期对面)",
+    };
     return {
       tabValue: ref("0"),
       goodsTabValue: ref("0"),
@@ -603,7 +208,11 @@ export default {
       selectFoods,
       currentGroupPurchase,
       pay,
-      onDecrease
+      onDecrease,
+      handleShowBottom,
+      showBottom,
+      empty,
+      shopInfo,
     };
   },
 };
@@ -616,6 +225,10 @@ export default {
   display: flex;
   flex-direction: column;
 
+  // .nutui-iconfont {
+  //   font-family: "iconfont" !important;
+  // }
+
   .buying-content {
     flex: 1;
     overflow: hidden;
@@ -624,21 +237,7 @@ export default {
       height: 100%;
       width: 100%;
 
-      .goods-wrapper {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        width: 100%;
-        .tab-wrapper {
-          flex: 1;
-        }
-        .shop-cart-wrapper {
-          width: 100%;
-          height: 48px;
-        }
-      }
-
-      .nut-tabpane {
+      .nut-tab-pane {
         position: relative;
         padding: 0;
       }
@@ -684,7 +283,7 @@ export default {
 
             .name {
               margin: 2px 0 8px 0;
-              height: 14px;
+              // height: 14px;
               line-height: 14px;
               font-size: 14px;
               color: #333;
@@ -733,10 +332,132 @@ export default {
         }
       }
     }
+  }
 
-    .nut-tabs__titles-item__text {
-      padding: 0 20px;
+  .shop-cart-wrapper {
+    width: 100%;
+    position: relative;
+    z-index: 20000;
+  }
+}
+
+.shop-cart-list {
+  .nut-popup {
+    bottom: 48px;
+  }
+
+  .list-header {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 18px;
+    background: #f3f5f7;
+
+    .title {
+      float: left;
+      font-size: 14px;
+      color: #333;
     }
+
+    .empty {
+      float: right;
+      font-size: 12px;
+      color: #fc725b;
+    }
+  }
+
+  .list-content {
+    padding: 0 18px;
+    max-height: 217px;
+    overflow: hidden;
+    background: #fff;
+
+    .food {
+      position: relative;
+      padding: 12px 0;
+      box-sizing: border-box;
+
+      .name {
+        line-height: 24px;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .price {
+        position: absolute;
+        right: 90px;
+        bottom: 12px;
+        line-height: 24px;
+        font-weight: 700;
+        font-size: 14px;
+        color: #f01414;
+      }
+
+      .cart-control-wrapper {
+        position: absolute;
+        right: 0;
+        bottom: 6px;
+      }
+    }
+  }
+}
+
+.business-wrap {
+  height: 100%;
+  width: 100%;
+  background: #f5f5f5;
+  padding: 0 12px;
+
+  .business-content {
+    .business-item {
+      padding: 12px 12px;
+      background: #fff;
+      margin-bottom: 12px;
+      border-radius: 6px;
+
+      &:first-child {
+        background-image: linear-gradient(#f5f5f5, #fff);
+      }
+
+      .desc {
+        color: #444;
+        font-size: 14px;
+        margin-top: 3px;
+      }
+
+      .promise {
+        display: flex;
+        margin-top: 3px;
+
+        .promise-item {
+          color: #444;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+.shop-wrap {
+  display: flex;
+  flex-direction: column;
+  color: #000;
+
+  .shop-title {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    line-height: 20px;
+
+    /deep/.nut-icon {
+      position: relative;
+      top: 5px;
+    }
+  }
+
+  .shop-desc {
+    font-size: 14px;
+    color: #444;
+    line-height: 24px;
   }
 }
 </style>

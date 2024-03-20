@@ -1,18 +1,21 @@
 <template>
   <view class="invite-empty">
-    <nut-icon
+    <IconFont
       name="iconfont iconfont icon-yaoqingyouli"
       color="#D3DDD9"
       size="48"
-    ></nut-icon>
+    ></IconFont>
     <view class="desc">{{ desc }}</view>
   </view>
 </template>
 
 <script>
+import { IconFont } from '@nutui/icons-vue-taro';
 export default {
   name: "InviteEmpty",
-  components: {},
+  components: {
+    IconFont
+  },
   props: {
     desc: {
       type: String,

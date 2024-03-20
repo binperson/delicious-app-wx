@@ -11,13 +11,13 @@
       规则
     </div>
     <nut-popup
-      pop-class="popclass"
-      :style="{ padding: '30px 50px' }"
+      pop-class="pop-class"
+      :style="{ padding: '36px 20px' }"
       v-model:visible="showInfo"
       :z-index="100"
       closeable
     >
-      积分规则：
+      积分规则：新人获得一张3元优惠卷，邀请1-2人，每次获得1元；邀请3-5人，每次获得3元；邀请6人以上，每次获得5元；被邀请人每次下单，可获取100积分；
     </nut-popup>
     <DeliView :paddingBottom="false">
       <template v-slot:header>
@@ -29,7 +29,7 @@
             <div class="invite-wrapper">
               <div class="invite-bg">
                 <view class="countdown-wrap">
-                  <nut-countdown v-model="resetTime" :endTime="end">
+                  <nut-countdown v-model="resetTime" :endTime="new Date(end)">
                     <div class="countdown-part-box">
                       <span class="part-item">{{ resetTime.d }}</span>
                       <div class="part-item-symbol">天</div>
@@ -45,37 +45,25 @@
                 <div class="award-wrap">
                   <div class="award-list">
                     <div class="award-item">
-                      <view class="top">
-                        1-2人
-                      </view>
+                      <view class="top"> 1-2人 </view>
                       <view class="bottom">
-                        <view class="prev">
-                          ¥
-                        </view>
+                        <view class="prev"> ¥ </view>
                         <view class="num">1</view>
                         <view class="unit">/人</view>
                       </view>
                     </div>
                     <div class="award-item">
-                      <view class="top">
-                        3-5人
-                      </view>
+                      <view class="top"> 3-5人 </view>
                       <view class="bottom">
-                        <view class="prev">
-                          ¥
-                        </view>
+                        <view class="prev"> ¥ </view>
                         <view class="num">3</view>
                         <view class="unit">/人</view>
                       </view>
                     </div>
                     <div class="award-item">
-                      <view class="top">
-                        6人以上
-                      </view>
+                      <view class="top"> 6人以上 </view>
                       <view class="bottom">
-                        <view class="prev">
-                          ¥
-                        </view>
+                        <view class="prev"> ¥ </view>
                         <view class="num">5</view>
                         <view class="unit">/人</view>
                       </view>
@@ -83,36 +71,71 @@
                   </div>
                 </div>
                 <div class="tip-wrap">
-                  <view class="tip">
-                    邀请成功条件：好友下单满5元
-                  </view>
+                  <view class="tip"> 好友下单每次赠送100积分 </view>
                 </div>
                 <div class="do-invite-wrap">
-                  <div @click="invite" class="do-invite">
-                    <nut-icon
+                  <div class="do-invite">
+                    <IconFont
                       color="#E6552E"
                       name="iconfont iconfont icon-weixin"
                       size="24"
-                    ></nut-icon>
+                    ></IconFont>
                     <view class="tt">立即邀请微信好友</view>
                   </div>
+
+                  <button open-type="share"></button>
                 </div>
               </div>
               <div class="has-invite">
                 <nut-tabs v-model="hasInvite">
-                  <nut-tabpane title="未邀请成功">
-                    <InviteEmpty desc="暂无邀请好友，快去邀请好友吧" />
-                  </nut-tabpane>
-                  <nut-tabpane title="已邀请成功">
-                    <InviteEmpty desc="暂无邀请好友，快去邀请好友吧" />
-                  </nut-tabpane>
+                  <nut-tab-pane title="未邀请成功">
+                    <div
+                      v-if="hasInvite === '0' && noInviteSuccessList.length > 0"
+                      class="invite-list"
+                    >
+                      <InviteItem
+                        :info="item"
+                        v-for="item in noInviteSuccessList"
+                      />
+                    </div>
+                    <InviteEmpty v-else desc="暂无邀请好友，快去邀请好友吧" />
+                  </nut-tab-pane>
+                  <nut-tab-pane title="已邀请成功">
+                    <div
+                      v-if="
+                        hasInvite === '1' && hasInviteSuccessList.length > 0
+                      "
+                      class="invite-list"
+                    >
+                      <InviteItem
+                        :info="item"
+                        v-for="item in hasInviteSuccessList"
+                      />
+                    </div>
+                    <InviteEmpty
+                      v-else
+                      desc="暂无邀请成功好友，快去邀请好友吧"
+                    />
+                  </nut-tab-pane>
                 </nut-tabs>
               </div>
               <div class="has-invite discount-coupon">
-                <nut-tabs>
-                  <nut-tabpane title="已获得优惠卷">
-                    <InviteEmpty desc="暂无优惠券，快去邀请好友吧" />
-                  </nut-tabpane>
+                <nut-tabs v-model="hasReel">
+                  <nut-tab-pane title="已获得优惠卷">
+                    <div v-if="couponList.length > 0" class="coupon-list">
+                      <CouponIntegral :info="item" v-for="item in couponList" />
+                    </div>
+                    <InviteEmpty v-else desc="暂无优惠券，快去邀请好友吧" />
+                  </nut-tab-pane>
+                  <nut-tab-pane title="已获得积分">
+                    <div v-if="memberPoints.length > 0" class="integral-list">
+                      <CouponIntegral
+                        :info="item"
+                        v-for="item in memberPoints"
+                      />
+                    </div>
+                    <InviteEmpty v-else desc="暂无积分，快去邀请好友吧" />
+                  </nut-tab-pane>
                 </nut-tabs>
               </div>
               <div class="footer">
@@ -130,9 +153,16 @@
 <script>
 import DeliView from "@/components/DeliView/index.vue";
 import DeliNavbar from "@/components/DeliNavbar/index.vue";
+import InviteItem from "./components/InviteItem.vue";
+import CouponIntegral from "./components/CouponIntegral.vue";
 import { back } from "@/utils/index";
 import { reactive, ref, toRefs } from "vue";
 import InviteEmpty from "./components/InviteEmpty.vue";
+import { useShareTimeline, useShareAppMessage } from "@tarojs/taro";
+import { getInviteList, getMemberPointsPage } from "@/api/member";
+import { getMemberCoupon } from "@/api/coupon";
+import Taro from "@tarojs/taro";
+import { IconFont } from "@nutui/icons-vue-taro";
 
 export default {
   name: "Invite",
@@ -140,6 +170,9 @@ export default {
     DeliView,
     DeliNavbar,
     InviteEmpty,
+    InviteItem,
+    CouponIntegral,
+    IconFont,
   },
   setup() {
     const state = reactive({
@@ -153,17 +186,108 @@ export default {
     });
 
     const hasInvite = ref("0");
+    const hasReel = ref("0");
     const showInfo = ref(false);
+    const noInviteSuccessList = ref([1, 2, 3]);
+    const hasInviteSuccessList = ref([]);
+    const memberPoints = ref([]);
+    const couponList = ref([
+      {
+        phone: "19923199509邀请成功",
+        num: "1元",
+        type: "优惠卷",
+      },
+    ]);
+    const integralList = ref([
+      {
+        phone: "19923199509下单",
+        num: "100",
+        type: "积分",
+      },
+      {
+        phone: "19923199509下单",
+        num: "100",
+        type: "积分",
+      },
+    ]);
+    // 监听右上角菜单“分享到朋友圈”按钮的行为，并自定义分享内容。等同于 onShareTimeline 页面生命周期钩子。
+    useShareTimeline(() => {
+    });
+    // useShareAppMessage 监听用户点击页面内转发按钮 （Button 组件 openType='share'）
+    const userInfo = Taro.getStorageSync("userInfo") || {};
+    useShareAppMessage((res) => {
+      if (res.from === "button") {
+        // 来自页面内转发按钮
+      }
+      return {
+        title: "美食盒子部落",
+        path: `pages/auth/login/index?inviter=${userInfo.id}`,
+      };
+    });
     const invite = () => {
-      console.log(123);
     };
+
+    const getInviteListByStatus = (data) => {
+      getInviteList().then((res) => {
+        const ret = res.result;
+        noInviteSuccessList.value = ret.filter((t) => t.inviteStatus === 1);
+        hasInviteSuccessList.value = ret.filter((t) => t.inviteStatus === 2);
+      });
+    };
+
+    // 获取类型(1：后台增删；2：主动领取；3：邀请新用户)
+    const getMemberPointsPageStatus = () => {
+      getMemberPointsPage({
+        getType: 3,
+        pageNo: 1,
+        pageSize: 100,
+      }).then((res) => {
+        memberPoints.value = res.result?.records || [];
+        memberPoints.value.forEach((item) => {
+          Object.assign(item, {
+            phone: `${item.inviteeMobile}下单`,
+            num: item.count,
+            type: "积分",
+          });
+        });
+      });
+    };
+    // 积分
+    getMemberPointsPageStatus();
+
+    // inviteStatus=2：已邀请成功 和 已获取优惠券
+    // inviteStatus=1：未邀请成功
+
+    // 邀请状态
+    getInviteListByStatus();
+
+    // 优惠卷
+    const getCoupon = () => {
+      getMemberCoupon({ getType: 3 }).then((res) => {
+        couponList.value = res.result;
+        couponList.value.forEach((item) => {
+          Object.assign(item, {
+            phone: `${item.inviteeMobile}下单`,
+            num: item.faceValue,
+            type: "优惠卷",
+          });
+        });
+      });
+    };
+    getCoupon();
 
     return {
       ...toRefs(state),
       back,
       invite,
       hasInvite,
+      hasReel,
       showInfo,
+      noInviteSuccessList,
+      hasInviteSuccessList,
+      couponList,
+      integralList,
+      memberPoints,
     };
   },
 };
@@ -172,6 +296,10 @@ export default {
 <style lang="less">
 .t-invite {
   background: #ff7a32;
+
+  .iconfont {
+    font-family: "iconfont" !important;
+  }
 
   .rule {
     display: flex;
@@ -301,9 +429,19 @@ export default {
         }
 
         .do-invite-wrap {
+          position: relative;
           display: flex;
           justify-content: center;
           align-items: center;
+
+          button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+          }
 
           .do-invite {
             width: 80%;
@@ -334,6 +472,21 @@ export default {
           .nut-tabs {
             border-radius: 8px;
           }
+
+          .invite-list,
+          .coupon-list,
+          .integral-list {
+            margin: -10px 0;
+
+            .t-invite-item,
+            .t-coupon-integral {
+              margin-bottom: 10px;
+
+              &:last-child {
+                margin-bottom: 0;
+              }
+            }
+          }
         }
 
         // .discount-coupon {
@@ -356,5 +509,9 @@ export default {
       }
     }
   }
+}
+
+.pop-class {
+  width: 80%;
 }
 </style>

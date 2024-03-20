@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "./",
-  "projectname": "delicious-app",
-  "description": "deli",
+  "projectname": "myApp",
+  "description": "",
   "appid": "touristappid",
   "setting": {
     "urlCheck": true,

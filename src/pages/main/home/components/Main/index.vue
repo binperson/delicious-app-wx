@@ -12,7 +12,7 @@
         class="header-content"
       >
         <view class="location" @click="getLocation">
-          <nut-icon name="location2" color="#fff" size="15"></nut-icon>
+          <IconFont name="location2" color="#fff" size="15"></IconFont>
           <view class="region-name">{{
             location.name ? location.name : "获取定位"
           }}</view>
@@ -25,118 +25,138 @@
         <div class="title">
           {{ currentTribe.tribeName || "--" }}
         </div>
-        <div class="switch">
-          更换
-        </div>
+        <div class="switch">更换</div>
       </div>
     </view>
-    <scroll-view class="content" :scroll-y="true">
+    <scroll-view
+      class="content"
+      :scroll-y="true"
+      :refresherEnabled="true"
+      :refresherTriggered="triggered"
+      @refresherrefresh="refresherrefresh"
+    >
       <div class="group-list">
-        <div @click="updateCurrentGroupPurchase(item)" v-for="item in groupPurchaseList" class="group-item">
-          <div class="top">
-            <div class="title">
-              <div class="shop-name">
-                {{ item.name }}
+        <template v-if="groupPurchaseList.length > 0">
+          <div
+            @click="updateCurrentGroupPurchase(item)"
+            v-for="(item, index) in groupPurchaseList"
+            class="group-item"
+          >
+            <div class="top">
+              <div class="title">
+                <div class="shop-name">
+                  {{ item.name }}
+                </div>
+                <div class="tip">优选食物团购中</div>
               </div>
-              <div class="tip">
-                优选食物团购中
+              <div class="countdown-wrap">
+                <template v-if="item.isEndGroupBuying"> 已结束 </template>
+                <template v-else>
+                  <nut-countdown
+                    :end-time="new Date(item.endTime)"
+                  ></nut-countdown>
+                  后结束
+                </template>
               </div>
             </div>
-            <div class="countdown-wrap">
-              <nut-countdown :end-time="item.endTime"></nut-countdown>
-              后结束
-            </div>
-          </div>
-          <div class="info-wrap">
-            <div class="food-wrap">
-              <scroll-view>
-                <div class="food-list">
-                  <div v-for="item in shuffle(allFoodList)" class="food-item">
-                    <div class="food-img" :style="`background: url('${item.avatar}');background-size: cover;`"></div>
-                    <div class="food-title">
-                      {{ item.name }}
-                    </div>
-                    <div class="price-wrap">
-                      <div class="price">
-                        <nut-price
-                          :price="item.price"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
+            <div class="info-wrap">
+              <div class="food-wrap">
+                <scroll-view>
+                  <div class="food-list">
+                    <div v-for="item in allFoodList" class="food-item">
+                      <div
+                        class="food-img"
+                        :style="`background: url('${item.avatar}');background-size: cover;`"
+                      ></div>
+                      <div class="food-title">
+                        {{ item.name }}
                       </div>
-                      <div class="old-price">
-                        <nut-price
-                          :price="item.originPrice"
-                          size="normal"
-                          :need-symbol="true"
-                          :thousands="true"
-                        />
+                      <div class="price-wrap">
+                        <div class="price">
+                          <nut-price
+                            :price="item.price"
+                            size="normal"
+                            :need-symbol="true"
+                            :thousands="true"
+                          />
+                        </div>
+                        <div class="old-price">
+                          <nut-price
+                            :price="item.originPrice"
+                            size="normal"
+                            :need-symbol="true"
+                            :thousands="true"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
+                </scroll-view>
+              </div>
+              <div v-if="item.status === '0'" class="info">
+                <div class="left">
+                  <div class="progress">
+                    <nut-progress
+                      :percentage="
+                        parseInt((item.orderNum / item.mosaicRange[1]) * 100)
+                      "
+                      :text-inside="true"
+                      size="small"
+                    />
+                  </div>
+                  <div class="num-wrap">已拼{{ item.orderNum }}单</div>
                 </div>
-              </scroll-view>
-            </div>
-            <div class="info">
-              <div class="left">
-                <!-- <div class="progress">
+                <div class="right">
+                  <nut-button size="mini" type="warning">
+                    <view class="join">
+                      <view class="text">去拼单</view>
+                      <IconFont
+                        name="iconfont iconfont icon-invite-right"
+                        color="#fff"
+                        size="12"
+                      ></IconFont>
+                    </view>
+                  </nut-button>
+                </div>
+              </div>
+              <div v-else class="info">
+                <div class="left">
+                  <!-- <div class="progress">
                     <nut-progress
                       percentage="60"
                       :text-inside="true"
                       size="small"
                     />
                   </div> -->
-                <div class="success">
-                  拼单成功，加入即配送
+                  <div class="success">拼单成功，加入即配送</div>
                 </div>
-              </div>
-              <div class="right">
-                <nut-button @click="goUrl('/pages/buying/index')" size="mini" type="warning">
-                  <view class="join">
-                    <view class="text">去加入</view>
-                    <nut-icon
-                      name="iconfont iconfont icon-invite-right"
-                      color="#fff"
-                      size="12"
-                    ></nut-icon>
-                  </view>
-                </nut-button>
+                <div v-if="!item.isEndGroupBuying" class="right">
+                  <nut-button size="mini" type="warning">
+                    <view class="join">
+                      <view class="text">去加入</view>
+                      <IconFont
+                        name="iconfont iconfont icon-invite-right"
+                        size="12"
+                      ></IconFont>
+                    </view>
+                  </nut-button>
+                </div>
               </div>
             </div>
-            <!-- <div class="info">
-              <div class="left">
-                <div class="progress">
-                  <nut-progress
-                    percentage="60"
-                    :text-inside="true"
-                    size="small"
-                  />
-                </div>
-                <div class="num-wrap">
-                  已拼60单
-                </div>
-              </div>
-              <div class="right">
-                <nut-button size="mini" type="warning">
-                  <view class="join">
-                    <view class="text">去拼单</view>
-                    <nut-icon
-                      name="iconfont iconfont icon-invite-right"
-                      color="#fff"
-                      size="12"
-                    ></nut-icon>
-                  </view>
-                </nut-button>
-              </div>
-            </div> -->
           </div>
+        </template>
+
+        <div v-else class="empty-wrap">
+          <nut-empty
+            :description="`今日团购全部结束，明日11:00~13:00、17:30~19:30继续开团`"
+          ></nut-empty>
         </div>
       </div>
     </scroll-view>
   </view>
 </template>
 <script>
+import moment from "moment";
 import Taro, { useDidShow } from "@tarojs/taro";
 import { reactive, toRefs, ref, watch } from "vue";
 import { goUrl } from "@/utils/index";
@@ -145,15 +165,18 @@ import { foodStore } from "@/store/modules/food.js";
 import { groupPurchaseStore } from "@/store/modules/groupPurchase.js";
 import { storeToRefs } from "pinia";
 import { getPmsGroupPurchaseList } from "@/api/groupPurchase";
+import { IconFont } from "@nutui/icons-vue-taro";
 const tribe = tribeStore();
 const food = foodStore();
-const groupPurchase = groupPurchaseStore()
+const groupPurchase = groupPurchaseStore();
 const chooseLocation = requirePlugin("chooseLocation");
 const key = "TX5BZ-5B53D-WYN4P-PJECA-5FV5S-OLB2N";
 const referer = "deli";
 export default {
   name: "Main",
-  components: {},
+  components: {
+    IconFont,
+  },
   onUnload() {
     // 页面卸载时设置插件选点数据为null，防止再次进入页面，geLocation返回的是上次选点结果
     chooseLocation.setLocation(null);
@@ -166,6 +189,7 @@ export default {
     });
     const location = ref({});
     const groupPurchaseList = ref([]);
+    const triggered = ref(false);
     location.value = Taro.getStorageSync("location") || {};
     food.getAllFoodList();
 
@@ -175,7 +199,10 @@ export default {
       });
     };
 
-    const shuffle = (arr) => {
+    const shuffle = (arr, index) => {
+      if (index % 6 !== 0) {
+        return arr;
+      }
       var l = arr.length;
       var index, temp;
       while (l > 0) {
@@ -190,11 +217,16 @@ export default {
 
     // 更新当前团购
     const updateCurrentGroupPurchase = (val) => {
-      groupPurchase.updateCurrentGroupPurchase(val)
-    }
+      if (val.isEndGroupBuying) {
+        return;
+      }
+      groupPurchase.updateCurrentGroupPurchase(val);
+      goUrl("/pages/buying/index?state=1");
+    };
 
     useDidShow(() => {
-      const getLocationInfo = chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
+      const getLocationInfo =
+        Taro.getStorageSync("location") || chooseLocation.getLocation(); // 如果点击确认选点按钮，则返回选点结果对象，否则返回null
       if (getLocationInfo) {
         location.value = getLocationInfo;
       }
@@ -219,21 +251,35 @@ export default {
     const { currentTribe } = storeToRefs(tribe);
     const { allFoodList } = storeToRefs(food);
 
+    const getPmsGroupPurchaseListByTribeId = (tribeId) => {
+      getPmsGroupPurchaseList({
+        effectTime: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        tribeId,
+      }).then((res) => {
+        if (res) {
+          const arr = [];
+          res.result?.forEach((item) => {
+            item.mosaicRange = JSON.parse(item.mosaicRange);
+            item.deliveryTime = JSON.parse(item.deliveryTime);
+            item.isEndGroupBuying =
+              Date.now() - new Date(item.deliveryTime[1]).getTime() > 0;
+            if (!item.isEndGroupBuying) {
+              arr.push(item);
+            }
+          });
+          groupPurchaseList.value = arr;
+        }
+      });
+    };
+
     watch(
       currentTribe,
       (newValue) => {
         // 获取团购列表
-        console.log(1233, newValue);
-        if (newValue) {
-          getPmsGroupPurchaseList({
-            tribeId: newValue.tribeId,
-          }).then((res) => {
-            res.result.forEach((item) => {
-              item.mosaicRange = JSON.parse(item.mosaicRange);
-              item.deliveryTime = JSON.parse(item.deliveryTime);
-            });
-            groupPurchaseList.value = res.result;
-          });
+        if (newValue.tribeId) {
+          getPmsGroupPurchaseListByTribeId(newValue.tribeId);
+        } else {
+          goUrl("/pages/main/select-tribe/index");
         }
       },
       {
@@ -241,6 +287,14 @@ export default {
         deep: true,
       }
     );
+
+    const refresherrefresh = () => {
+      triggered.value = true;
+      getPmsGroupPurchaseListByTribeId(currentTribe.tribeId);
+      setTimeout(() => {
+        triggered.value = false;
+      }, 600);
+    };
     return {
       ...toRefs(state),
       location,
@@ -250,7 +304,9 @@ export default {
       groupPurchaseList,
       allFoodList,
       shuffle,
-      updateCurrentGroupPurchase
+      updateCurrentGroupPurchase,
+      triggered,
+      refresherrefresh,
     };
   },
 };
@@ -260,6 +316,18 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
+
+  .empty-wrap {
+    background-color: #fff;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .nut-empty__description {
+      text-align: center;
+    }
+  }
 
   .t-main-bg {
     position: absolute;
@@ -316,7 +384,6 @@ export default {
     overflow: hidden;
 
     .group-list {
-      padding-top: 7px;
       padding: 7px 12px 0 12px;
 
       .group-item {
@@ -362,20 +429,30 @@ export default {
           .food-wrap {
             .food-list {
               display: flex;
-              align-items: center;
 
               .food-item {
+                display: flex;
+                flex-direction: column;
                 margin-right: 8px;
+
                 .food-img {
                   height: 80px;
                   width: 80px;
                   background-size: 100% 100%;
                 }
+
                 .food-title {
                   font-size: 12px;
                   color: #666666;
                   margin-top: 8px;
                   padding: 0 2px;
+                  flex: 1;
+                  line-height: 18px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  display: -webkit-box;
+                  -webkit-box-orient: vertical;
+                  -webkit-line-clamp: 1;
                 }
               }
 
@@ -471,6 +548,7 @@ export default {
                   position: absolute;
                   right: -6px;
                   top: 1px;
+                  color: #fa5f22 !important;
                 }
               }
             }

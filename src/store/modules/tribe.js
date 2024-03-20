@@ -3,8 +3,8 @@ import { getTribeList } from "@/api/system";
 import Taro from "@tarojs/taro";
 
 const calculateDis = (p1, p2) => {
-  dx = Math.abs(p2.latitude - p1.latitude);
-  dy = Math.abs(p2.longitude - p1.longitude);
+  const dx = Math.abs(p2.latitude - p1.latitude);
+  const dy = Math.abs(p2.longitude - p1.longitude);
   const dis = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 
   return dis
@@ -35,7 +35,7 @@ export const tribeStore = defineStore("tribe", {
   actions: {
     getTribeList(location) {
       getTribeList({}).then((res) => {
-        this.tribeList = res.result;
+        this.tribeList = res.result || [];
         const tribeListLast = [];
         getTribeListLast(this.tribeList, tribeListLast);
         tribeListLast.sort((a, b) => {

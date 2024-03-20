@@ -1,16 +1,24 @@
-export default {
+export default defineAppConfig({
   pages: [
+    "pages/main/home/index",
     "pages/auth/login/index",
     "pages/buying/index",
+    "pages/index/index",
     "pages/pay/index",
+    "pages/main/invite/index",
+    "pages/main/select-tribe/index",
     "pages/order/index",
     "pages/order-detail/index",
-    "pages/main/invite/index",
-    "pages/main/home/index",
-    "pages/test/index",
-    "pages/main/select-tribe/index",
     "pages/statement/policy/index",
     "pages/statement/protocol/index",
+    "pages/coupon/index",
+  ],
+  subPackages: [
+    {
+      root: "pages/sub",
+      pages: ["order-admin/index"],
+      independent: true,
+    }
   ],
   window: {
     backgroundTextStyle: "light",
@@ -36,4 +44,4 @@ export default {
     },
   },
   requiredPrivateInfos: ["chooseAddress"],
-};
+});

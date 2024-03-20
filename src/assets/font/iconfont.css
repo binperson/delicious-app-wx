@@ -2,9 +2,9 @@
   font-family: "iconfont"; /* Project id 2796847 */
   /* Color fonts */
   src: 
-       url('iconfont.woff2?t=1653580835708') format('woff2'),
-       url('iconfont.woff?t=1653580835708') format('woff'),
-       url('iconfont.ttf?t=1653580835708') format('truetype');
+       url('iconfont.woff2?t=1708254027574') format('woff2'),
+       url('iconfont.woff?t=1708254027574') format('woff'),
+       url('iconfont.ttf?t=1708254027574') format('truetype');
 }
 
 .iconfont {
@@ -13,6 +13,34 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-huodong:before {
+  content: "\e609";
+}
+
+.icon-huodong-active:before {
+  content: "\f41e";
+}
+
+.icon-diancan-active:before {
+  content: "\f41d";
+}
+
+.icon-diancan11:before {
+  content: "\e686";
+}
+
+.icon-diancan:before {
+  content: "\e618";
+}
+
+.icon-qucan:before {
+  content: "\e638";
+}
+
+.icon-qucan-active:before {
+  content: "\f41c";
 }
 
 .icon-shoppingcart-highlight:before {

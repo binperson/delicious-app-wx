@@ -6,6 +6,55 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "18154612",
+      "name": "活动组件-14",
+      "font_class": "huodong",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "39238113",
+      "name": "活动组件-14",
+      "font_class": "huodong-active",
+      "unicode": "f41e",
+      "unicode_decimal": 62494
+    },
+    {
+      "icon_id": "39234836",
+      "name": "点餐",
+      "font_class": "diancan-active",
+      "unicode": "f41d",
+      "unicode_decimal": 62493
+    },
+    {
+      "icon_id": "19275665",
+      "name": "点餐",
+      "font_class": "diancan11",
+      "unicode": "e686",
+      "unicode_decimal": 59014
+    },
+    {
+      "icon_id": "29240378",
+      "name": "点餐",
+      "font_class": "diancan",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "21907193",
+      "name": "取餐",
+      "font_class": "qucan",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "39233926",
+      "name": "取餐-copy",
+      "font_class": "qucan-active",
+      "unicode": "f41c",
+      "unicode_decimal": 62492
+    },
+    {
       "icon_id": "459016",
       "name": "shopping-cart",
       "font_class": "shoppingcart-highlight",
